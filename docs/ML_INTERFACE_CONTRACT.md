@@ -1,54 +1,64 @@
 # ML Interface Contract — Safe Roads Backend
 
-This document defines the clean interface between the FastAPI backend (`backend/services/model_service.py`) and a future trained ML model provided by the data/ML partner (Mor). The interface ensures seamless integration without modifying the backend code.
+This document defines the implemented interface between the FastAPI application and Mor's final saved accident-severity model.
 
-## 1. Expected Input Features
+## 1. Prediction Request
 
-The model must accept input as a list of 6 string features representing driving conditions:
+`POST /predict` accepts exactly the following 16 required fields, in the model feature order:
 
-- `road_type`: String indicating road environment (e.g., "urban", "highway").
-- `weather`: String describing weather conditions (e.g., "clear", "rain", "fog").
-- `time_of_day`: String for time period (e.g., "day", "night").
-- `lighting`: String for visibility conditions (e.g., "daylight", "dark_with_streetlights", "dark_no_streetlights").
-- `junction`: String indicating junction presence (e.g., "no_junction", "junction").
-- `road_surface`: String for surface condition (e.g., "dry", "wet", "unknown").
+1. `SHAA`
+2. `HODESH_TEUNA`
+3. `YOM_BASHAVUA`
+4. `SUG_TEUNA`
+5. `ROAD_STRUCTURE`
+6. `ROHAV`
+7. `NAFA`
+8. `ZURAT_ISHUV`
+9. `MEHIRUT_MUTERET`
+10. `TEURA`
+11. `SUG_DEREH`
+12. `SIMUN_TIMRUR`
+13. `TKINUT`
+14. `PNE_KVISH`
+15. `MEZEG_AVIR`
+16. `YOM_LAYLA`
 
-**Abstract Specification**: Input is a list of 6 categorical strings. No preprocessing required in backend; model handles encoding internally. Features are derived from user inputs and match frontend enum values.
+Values may be supported descriptive mapping keys or valid encoded values. The API rejects missing or unexpected fields; it does not translate older request formats or synthesize missing current fields.
 
-## 2. Expected Output Format
+## 2. Model Input and Output
 
-The model must implement `predict_proba(input_list)` returning a 2-element array:
+`backend/services/data_mapper.py` maps the validated request to a one-row `pandas.DataFrame` ordered by `FEATURE_ORDER`. The saved pipeline implements `predict_proba(frame)` and returns class probabilities. Class `0` means `Light accident`; class `1` means `Dangerous accident`.
 
-- `[prob_no_accident, prob_accident]`: NumPy array or list of floats summing to 1.0.
-- Backend extracts `prob_accident` (index 1) as the accident probability.
+The API response contains exactly:
 
-**Abstract Specification**: Binary classification probabilities. Output must be a sequence of two floats (probabilities for classes 0 and 1, where 1 = accident). Backend clamps the accident probability to [0.0, 0.95] for consistency.
+- `prediction`: integer class, `0` or `1`.
+- `prediction_label`: `Light accident` or `Dangerous accident`.
+- `light_probability`: floating-point probability in `[0, 1]`.
+- `dangerous_probability`: floating-point probability in `[0, 1]`.
 
-## 3. Model File Format Assumptions
+Exact probabilities are produced by the saved model and are not fixed by this contract.
 
-- **File Name**: `model.pkl` (placed in project root).
-- **Serialization**: Joblib (scikit-learn compatible) pickle format.
-- **Requirements**: Model object must have `predict_proba` method accepting a list of lists (e.g., `[features]` for single prediction).
-- **Dependencies**: Model may require scikit-learn, but backend only imports `joblib` for loading.
-- **Version Compatibility**: Assume compatible with Python 3.8+ and joblib 1.0+.
+## 3. Saved Model Artifacts
 
-**Abstract Specification**: Serialized model file loadable via `joblib.load()`. No specific ML library assumed, as long as interface matches.
+- Model: `safe_roads_ml/final_model/saved_model/safe_roads_model.joblib`
+- Metadata: `safe_roads_ml/final_model/saved_model/model_metadata.json`
+- Loading: `joblib.load()` through `backend/services/model_service.py`
+- Required method: `predict_proba`
 
-## 4. Error Handling Strategy
+The metadata supplies the target labels, while `FEATURE_ORDER` controls the application-to-model column order.
 
-- **Model Missing**: If `model.pkl` does not exist, backend falls back to rule-based prediction without error.
-- **Loading Failure**: If `joblib.load()` raises exception (e.g., corrupted file, incompatible version), log error and fall back to rule-based.
-- **Prediction Failure**: If `predict_proba()` raises exception (e.g., invalid input shape), log error and fall back to rule-based.
-- **Logging**: Errors logged via Python `logging` (configured in `backend/app.py`); no crashes or user-visible errors.
-- **Fallback Behavior**: Rule-based prediction ensures system always works; breakdown remains explainable.
+## 4. Failure Behavior
 
-**Abstract Specification**: Graceful degradation — ML enhances prediction if available, but system remains functional without it. Errors do not propagate to API responses.
+- Invalid request shape or keys: rejected before inference.
+- Invalid `SHAA`: rejected as a validation error.
+- Missing or unloadable saved model: prediction is disabled and the API returns an error.
+- Model inference failure: logged and returned as an API error.
+
+There is no rule-based or dummy prediction fallback.
 
 ## Integration Notes
 
-- **Backend Changes**: No code changes needed when model is provided; just place `model.pkl` in root.
-- **Testing**: Partner should test model locally with `backend/model_service.predict_probability(input_dict)` before deployment.
-- **Performance**: Model should be lightweight for real-time inference; backend is synchronous.
-- **Updates**: If model interface changes, update this contract and backend code accordingly.
-
-This contract ensures clean separation: backend handles API/inference plumbing, ML partner provides the trained model.
+- The route validates `PredictRequest`, serializes it, and calls `predict_probability(payload)`.
+- `predict_probability` builds the ordered feature frame, loads the cached real model, aligns Light/Dangerous probabilities, and formats the response.
+- Model training is outside the runtime backend; this contract covers inference only.
+- Changes to feature order, mapping meaning, target semantics, or response fields require coordinated changes to the model and application.

@@ -1,62 +1,73 @@
 # ML Backend Architecture — Safe Roads
 
-This document designs the backend architecture focused solely on ML inference. It assumes the ML model is pre-trained and provided externally, with no training or data preprocessing responsibilities in the backend.
+This document describes the implemented runtime architecture for accident-severity inference. Model training remains separate from the application backend.
 
 ## Constraints
 
-- **No Model Training**: Backend does not train models; models are loaded from disk.
-- **Minimal Preprocessing**: Only basic input validation (e.g., presence of required fields); no feature engineering or encoding.
-- **Runtime Loading**: Model loaded on-demand or at startup; cached for performance.
+- The backend does not train or modify the model.
+- Every prediction requires the final 16-field request contract.
+- The mapper preserves the model's verified feature order and mapping meanings.
+- The real saved model is required; there is no heuristic fallback.
 
-## Folder Structure
+## Relevant Structure
 
-```
+```text
 backend/
-├── app.py                 # FastAPI application, routes, middleware
-├── model_service.py       # ML inference service, model loading, prediction
-└── models/                # Directory for model files (optional, for organization)
-    └── model.pkl          # Trained model file (placed here or root)
+├── app.py                         # FastAPI application and static serving
+├── routes/predict.py              # POST /predict
+├── models/schemas.py              # PredictRequest and ModelResult
+└── services/
+    ├── data_mapper.py             # Current mappings and ordered model frame
+    └── model_service.py           # Saved-model loading and inference
+
+safe_roads_ml/final_model/saved_model/
+├── safe_roads_model.joblib        # Final trained pipeline
+└── model_metadata.json            # Feature and target metadata
 ```
 
-- `backend/`: Core backend code.
-- `models/`: Optional subfolder for model artifacts (e.g., `model.pkl`, config files).
-- No changes to `frontend/`, `tools/`, `data/` — inference-only scope.
-
-## Responsibility of Each File
+## Responsibilities
 
 ### `backend/app.py`
-- **Purpose**: Main FastAPI application entry point.
-- **Responsibilities**:
-  - Define FastAPI app instance, middleware (CORS, logging).
-  - Define Pydantic models (`PredictRequest`, `ModelResult`) for API schema.
-  - Implement `/predict` route: validate input, call `model_service.predict_probability()`, return JSON response.
-  - Handle HTTP-level errors (e.g., 500 with sanitized messages).
-  - Configure logging for errors.
-- **Interactions**: Calls `model_service.predict_probability()` with validated input dict.
+
+- Creates the FastAPI application.
+- Configures middleware, routes, logging, and static frontend serving.
+
+### `backend/routes/predict.py`
+
+- Receives `POST /predict` through `PredictRequest`.
+- Serializes the validated 16-field request.
+- Calls `predict_probability` and validates the returned `ModelResult`.
+- Converts input errors to HTTP `422` and unexpected failures to HTTP `500`.
+
+### `backend/models/schemas.py`
+
+- Requires all 16 current fields.
+- Forbids unexpected fields.
+- Defines the four-field prediction response.
+
+### `backend/services/data_mapper.py`
+
+- Converts supported application values to the numeric representation expected by the model.
+- Builds a one-row frame in `FEATURE_ORDER`.
+- Validates the special `SHAA` time representation.
 
 ### `backend/services/model_service.py`
-- **Purpose**: Abstraction layer for ML inference.
-- **Responsibilities**:
-  - Load trained model from disk (`model.pkl`) using `joblib`.
-  - Implement `predict_probability(input_dict)`: prepare features, run model prediction, return standardized output.
-  - Provide fallback to rule-based logic if model unavailable/invalid.
-  - Generate explainable `breakdown` (rule-based, not ML-derived).
-  - Clamp probabilities to [0.0, 0.95] for consistency.
-- **Interactions**: Called by `app.py`; loads model at first inference or startup.
 
-### `backend/models/` (Optional)
-- **Purpose**: Storage for model files and metadata.
-- **Responsibilities**: Hold `model.pkl` and any config (e.g., feature order). Not code, just assets.
+- Verifies the exact current feature-key set for direct service calls.
+- Loads and caches `safe_roads_model.joblib` with Joblib.
+- Calls `predict_proba` on the ordered frame.
+- Aligns class `0`/`1` with Light/Dangerous probabilities.
+- Returns `prediction`, `prediction_label`, `light_probability`, and `dangerous_probability`.
+- Fails explicitly if the real model is unavailable.
 
-## How the FastAPI Route Interacts with the Model Layer
+## Request Flow
 
-1. **Request Reception**: `/predict` route receives JSON, parses via `PredictRequest` (Pydantic validation).
-2. **Input Preparation**: `req.model_dump(mode="json")` converts enums to strings, creating input dict.
-3. **Inference Call**: Route calls `model_service.predict_probability(input_dict)`.
-4. **Model Loading**: If not cached, `model_service` loads `model.pkl` via `joblib.load()`.
-5. **Prediction**: Model runs `predict_proba([features])`, extracts accident probability.
-6. **Fallback**: On error, uses rule-based calculation.
-7. **Response**: Returns `ModelResult` with probability, percent, breakdown.
-8. **Error Handling**: Logs issues; API returns generic 500 if unrecoverable.
+1. The frontend submits the current 16-field JSON payload.
+2. FastAPI/Pydantic validates required and unexpected fields.
+3. The route serializes the request and calls `predict_probability`.
+4. The service verifies the key set and builds the ordered feature frame.
+5. The cached final Joblib model is loaded if necessary.
+6. The service calls `predict_proba` and aligns class probabilities.
+7. The API returns the four-field `ModelResult`.
 
-This architecture keeps inference decoupled, allowing easy model swaps without API changes.
+This boundary keeps application validation and mapping explicit while preserving the saved ML pipeline as the authority for inference.

@@ -48,22 +48,22 @@ The model uses exactly these 16 features:
 
 | Hebrew Name | English Description | Code |
 |-------------|-------------------|------|
-| SHAA | Hour of day (0-23) | Integer |
-| HODESH_TEUNA | Month of accident (1-12) | Integer |
-| YOM_BASHAVUA | Day of week (1-7) | Integer |
+| SHAA | Quarter-hour time code | Integer |
+| HODESH_TEUNA | Month of accident | Integer |
+| YOM_BASHAVUA | Day of week | Integer |
 | SUG_TEUNA | Type of accident | Integer |
 | ROAD_STRUCTURE | Road structure (engineered) | Integer |
 | ROHAV | Road width | Integer |
-| NAFA | Traffic density | Integer |
+| NAFA | District | Integer |
 | ZURAT_ISHUV | Settlement type | Integer |
 | MEHIRUT_MUTERET | Speed limit | Integer |
-| TEURA | Driving manner | Integer |
+| TEURA | Lighting conditions | Integer |
 | SUG_DEREH | Road type | Integer |
 | SIMUN_TIMRUR | Traffic signal/marking | Integer |
-| MEKOM_HAZIYA | Accident location type | Integer |
-| TKINUT | Weather condition | Integer |
-| OFEN_HAZIYA | Accident method | Integer |
+| TKINUT | Road-condition integrity | Integer |
 | PNE_KVISH | Road surface condition | Integer |
+| MEZEG_AVIR | Weather | Integer |
+| YOM_LAYLA | Day/night indicator | Integer |
 
 ---
 
@@ -127,7 +127,7 @@ Engineered from:
 - `HAD_MASLUL` (Single-lane indicator)
 - `RAV_MASLUL` (Multi-lane indicator)
 
-**Other Mappings**: See `data_mapper.py` for SHAA, HODESH_TEUNA, YOM_BASHAVUA, TKINUT, ZURAT_ISHUV, SIMUN_TIMRUR, MEKOM_HAZIYA, OFEN_HAZIYA, ROHAV, NAFA, TEURA.
+**Other Mappings**: See `feature_value_mappings.json` and `data_mapper.py` for every field in `FEATURE_ORDER`.
 
 ---
 
@@ -135,13 +135,13 @@ Engineered from:
 
 ### 1. Basic Value Conversion
 
-Convert a single Hebrew string to integer code:
+Convert a single supported descriptive key to its model code:
 
 ```python
 from backend.services.data_mapper import map_value_to_integer, ROAD_SURFACE_MAPPING
 
-# Map "יבש" → 1
-code = map_value_to_integer("יבש", ROAD_SURFACE_MAPPING, "PNE_KVISH")
+# Map "dry" → 1
+code = map_value_to_integer("dry", ROAD_SURFACE_MAPPING, "PNE_KVISH")
 print(code)  # Output: 1
 ```
 
@@ -153,41 +153,37 @@ Convert complete UI input to model-ready integers:
 from backend.services.data_mapper import prepare_model_input
 
 ui_data = {
-    "SHAA": "14:00",
-    "HODESH_TEUNA": "5",
-    "YOM_BASHAVUA": "שני",
-    "SUG_TEUNA": "חזיתי",
-    "ROAD_STRUCTURE": "דו-כיווני",
-    "ROHAV": "רחב (מעל 8 מ')",
-    "NAFA": "כבד",
-    "ZURAT_ISHUV": "עירוני",
-    "MEHIRUT_MUTERET": "עד 80 קמ״ש",
-    "TEURA": "זהיר",
-    "SUG_DEREH": "עירוני בצומת",
-    "SIMUN_TIMRUR": "בעל רמזור",
-    "MEKOM_HAZIYA": "מרכז כביש",
-    "TKINUT": "גשום",
-    "OFEN_HAZIYA": "תאונה",
-    "PNE_KVISH": "רטוב ממים",
+    "SHAA": "08:00",
+    "HODESH_TEUNA": "january",
+    "YOM_BASHAVUA": "sunday",
+    "SUG_TEUNA": "front_to_side_collision",
+    "ROAD_STRUCTURE": "single_lane_1",
+    "ROHAV": "5_to_7_meters",
+    "NAFA": "tel_aviv",
+    "ZURAT_ISHUV": "jewish_city_100k_200k",
+    "MEHIRUT_MUTERET": "up_to_50_kmh",
+    "TEURA": "daylight",
+    "SUG_DEREH": "urban_intersection",
+    "SIMUN_TIMRUR": "no_defect",
+    "TKINUT": "no_defect",
+    "PNE_KVISH": "dry",
+    "MEZEG_AVIR": "clear",
+    "YOM_LAYLA": "day",
 }
 
 model_input = prepare_model_input(ui_data)
-# Output: {"SHAA": 14, "HODESH_TEUNA": 5, "YOM_BASHAVUA": 2, ...}
+# The returned dictionary follows FEATURE_ORDER and contains the mapped integer values.
 ```
 
-### 3. Create Model Prediction Array
+### 3. Create the Ordered Model Frame
 
-Convert to numpy array for model prediction:
+Build the one-row DataFrame used by the saved pipeline:
 
 ```python
-from backend.services.data_mapper import prepare_model_array
-import numpy as np
+from backend.services.data_mapper import FEATURE_ORDER, prepare_model_frame
 
-model_array = prepare_model_array(ui_data)
-print(model_array.shape)  # (16,)
-
-# Use with your model:
-# prediction = model.predict_proba(model_array.reshape(1, -1))
+model_frame = prepare_model_frame(ui_data, FEATURE_ORDER)
+print(model_frame.shape)  # (1, 16)
 ```
 
 ### 4. Validate User Input
@@ -211,58 +207,17 @@ print(validation)
 
 ## 🔧 Integration with FastAPI Backend
 
-### In `backend/routes/predict.py`:
+### Current `backend/routes/predict.py` flow:
 
 ```python
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from backend.services.data_mapper import prepare_model_array, validate_ui_input
-
-class PredictRequest(BaseModel):
-    SHAA: str
-    HODESH_TEUNA: str
-    YOM_BASHAVUA: str
-    SUG_TEUNA: str
-    ROAD_STRUCTURE: str
-    ROHAV: str
-    NAFA: str
-    ZURAT_ISHUV: str
-    MEHIRUT_MUTERET: str
-    TEURA: str
-    SUG_DEREH: str
-    SIMUN_TIMRUR: str
-    MEKOM_HAZIYA: str
-    TKINUT: str
-    OFEN_HAZIYA: str
-    PNE_KVISH: str
-
-@app.post("/predict")
-async def predict_risk(request: PredictRequest):
-    # Convert request to dictionary
-    ui_input = request.model_dump()
-    
-    # Validate
-    validation = validate_ui_input(ui_input)
-    if not validation['valid']:
-        raise HTTPException(
-            status_code=400,
-            detail={"errors": validation['errors']}
-        )
-    
-    # Convert to model format
-    try:
-        model_array = prepare_model_array(ui_input)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    
-    # Get prediction
-    probability = model_service.predict_probability(model_array)
-    
-    return {
-        "probability": probability,
-        "risk_percent": int(probability * 100)
-    }
+@router.post("/predict", response_model=ModelResult)
+def predict(req: PredictRequest) -> ModelResult:
+    payload = req.model_dump(mode="json")
+    result = predict_probability(payload)
+    return ModelResult(**result)
 ```
+
+`PredictRequest` requires all fields in `FEATURE_ORDER` and forbids unexpected fields. `predict_probability` builds the ordered frame, runs the real saved model, and returns `prediction`, `prediction_label`, `light_probability`, and `dangerous_probability`.
 
 ---
 
@@ -359,26 +314,26 @@ User submits form → Convert → Predict → Return result
 # Frontend sends:
 frontend_json = {
     "SHAA": "08:00",
-    "HODESH_TEUNA": "1",
-    "YOM_BASHAVUA": "ראשון",
-    "SUG_TEUNA": "חזיתי",
-    "ROAD_STRUCTURE": "דו-כיווני",
-    "ROHAV": "בינוני (6.5-8 מ')",
-    "NAFA": "קל",
-    "ZURAT_ISHUV": "עירוני",
-    "MEHIRUT_MUTERET": "עד 50 קמ״ש",
-    "TEURA": "זהיר",
-    "SUG_DEREH": "עירוני בצומת",
-    "SIMUN_TIMRUR": "בעל רמזור",
-    "MEKOM_HAZIYA": "מדרכה",
-    "TKINUT": "בהיר",
-    "OFEN_HAZIYA": "תאונה",
-    "PNE_KVISH": "יבש",
+    "HODESH_TEUNA": "january",
+    "YOM_BASHAVUA": "sunday",
+    "SUG_TEUNA": "front_to_side_collision",
+    "ROAD_STRUCTURE": "single_lane_1",
+    "ROHAV": "5_to_7_meters",
+    "NAFA": "tel_aviv",
+    "ZURAT_ISHUV": "jewish_city_100k_200k",
+    "MEHIRUT_MUTERET": "up_to_50_kmh",
+    "TEURA": "daylight",
+    "SUG_DEREH": "urban_intersection",
+    "SIMUN_TIMRUR": "no_defect",
+    "TKINUT": "no_defect",
+    "PNE_KVISH": "dry",
+    "MEZEG_AVIR": "clear",
+    "YOM_LAYLA": "day",
 }
 
 # Backend converts and predicts
 model_input = prepare_model_input(frontend_json)
-probability = model.predict_proba(prepare_model_array(frontend_json))
+model_frame = prepare_model_frame(frontend_json, FEATURE_ORDER)
 ```
 
 ---
@@ -396,8 +351,8 @@ python scripts/integration_test.py
 # [Test 1] Basic conversion with prepare_model_input()
 #   ✓ Conversion successful
 #   ✓ Output keys: 16
-# [Test 2] Array conversion with prepare_model_array()
-#   ✓ Array shape: (16,)
+# [Test 2] Frame conversion with prepare_model_frame()
+#   ✓ Frame shape: (1, 16)
 # ...
 ```
 
@@ -407,7 +362,7 @@ python scripts/integration_test.py
 from backend.services.data_mapper import *
 
 # Test mapping a value
-assert map_value_to_integer("יבש", ROAD_SURFACE_MAPPING) == 1
+assert map_value_to_integer("dry", ROAD_SURFACE_MAPPING) == 1
 assert map_value_to_integer(None, ROAD_SURFACE_MAPPING) == 0
 
 # Test feature config
@@ -415,7 +370,7 @@ assert len(FEATURE_CONFIG) == 16
 
 # Test reverse maps
 reverse = REVERSE_MAPPINGS["PNE_KVISH"]
-assert reverse[1] == "יבש"
+assert reverse[1] == "dry"
 
 print("✓ All tests passed!")
 ```

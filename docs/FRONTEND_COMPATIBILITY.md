@@ -1,39 +1,36 @@
-# Frontend Compatibility — Safe Roads
+# Frontend and Prediction-API Compatibility — Safe Roads
 
 ## Verification Summary
 
-The frontend (`frontend/script.js`) does **not require any changes** when switching from rule-based logic to ML-based inference in the backend. The API response format remains identical, ensuring full backward compatibility.
+The current frontend and backend use the same final 16-field prediction contract. The frontend constructs the uppercase payload in `frontend/script.js`, and `PredictRequest` requires those fields while rejecting unexpected keys.
 
-## Detailed Analysis
+## Request Contract
 
-### Expected Response Structure
-The frontend expects the `/predict` API to return a JSON object with exactly these keys:
+The frontend submits:
 
-- `probability`: A number (0.0 to 1.0) representing accident risk.
-- `risk_percent`: An integer (0 to 100), though the frontend recalculates it from `probability` for display.
-- `breakdown`: An array of objects, each with:
-  - `factor`: String (e.g., "weather")
-  - `value`: String (e.g., "rain")
-  - `delta`: Number (fractional risk increase, e.g., 0.18)
-  - `note`: String (human-readable explanation)
+`SHAA`, `HODESH_TEUNA`, `YOM_BASHAVUA`, `SUG_TEUNA`, `ROAD_STRUCTURE`, `ROHAV`, `NAFA`, `ZURAT_ISHUV`, `MEHIRUT_MUTERET`, `TEURA`, `SUG_DEREH`, `SIMUN_TIMRUR`, `TKINUT`, `PNE_KVISH`, `MEZEG_AVIR`, and `YOM_LAYLA`.
 
-### Backend Response with ML Inference
-The updated `backend/services/model_service.py` preserves this structure:
-- `probability`: Clamped float from ML `predict_proba` or rule-based fallback.
-- `risk_percent`: Calculated as `int(round(probability * 100))`.
-- `breakdown`: Generated using rule-based logic (not ML-derived), providing consistent explainability.
+All fields are required. Unsupported extra keys and incomplete payloads are rejected rather than converted to defaults.
 
-### Code Compatibility Check
-- **Probability Handling**: `const p = Number(data.probability);` works with ML or rule-based values.
-- **Breakdown Rendering**: `breakdown.map(x => \`${x.factor} (+${Math.round(Number(x.delta) * 100)}%)\`)` assumes `factor` and `delta` fields, which are unchanged.
-- **Error Handling**: No changes to error display; backend errors are handled at API level.
-- **UI Logic**: Risk classification, advice, and bar display depend only on `probability`, unaffected by inference method.
+## Response Contract
 
-### Why No Changes Are Needed
-- The API contract is strictly preserved (as documented in `docs/ML_INTERFACE_CONTRACT.md`).
-- ML inference only affects the `probability` value; structure remains the same.
-- Fallback to rule-based ensures the system works without ML, maintaining compatibility.
-- No redesign of UI is required, as per constraints.
+The frontend consumes exactly:
+
+- `prediction`: `0` for Light accident or `1` for Dangerous accident.
+- `prediction_label`: corresponding English class label.
+- `light_probability`: model probability for class `0`.
+- `dangerous_probability`: model probability for class `1`.
+
+The UI derives displayed percentages and visual risk levels from the returned probabilities. The API does not return a factor breakdown.
+
+## Integration Checks
+
+- `frontend/script.js` sends all 16 current fields to `POST /predict`.
+- The backend mapping keys correspond to the values supplied by the current selectors.
+- The frontend verifies that the class and both probabilities are numeric before rendering.
+- Network or response-contract failures are shown through the existing error state.
+- The backend requires the real saved model and does not provide rule-based predictions.
 
 ## Conclusion
-The frontend is fully compatible with ML-based inference. No code changes are necessary. The switch is seamless: place `model.pkl` in the project root, and the backend will use it automatically while keeping the UI experience identical.
+
+The current frontend is aligned with the final ML inference contract. Future changes to request keys, feature order, target meaning, or response fields must be coordinated across frontend, schemas, mapper, service, tests, and documentation.
