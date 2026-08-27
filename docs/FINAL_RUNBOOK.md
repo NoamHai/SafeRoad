@@ -23,7 +23,6 @@ INFO:     Started reloader process [12345] using StatReload
 INFO:     Started server process [12346]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:backend.services.model_service:model.pkl not found, will use rule-based prediction
 ```
 
 Then open `http://127.0.0.1:8000` in your web browser.
@@ -69,24 +68,7 @@ Successfully installed fastapi-0.128.0 uvicorn-0.40.0 pydantic-2.12.5 pydantic-s
 python -m pytest tests/ -v
 ```
 
-**Expected Result:**
-```
-============================= test session starts ==============================
-...
-tests/test_predict.py::TestPredictOutputStructure::test_output_keys PASSED
-tests/test_predict.py::TestPredictOutputStructure::test_output_types PASSED
-tests/test_predict.py::TestPredictOutputStructure::test_breakdown_item_types PASSED
-tests/test_predict.py::TestPredictSanityCases::test_low_risk_scenario PASSED
-tests/test_predict.py::TestPredictSanityCases::test_high_risk_scenario PASSED
-tests/test_predict.py::TestPredictSanityCases::test_rainy_conditions PASSED
-tests/test_predict.py::TestPredictSanityCases::test_night_driving PASSED
-tests/test_predict.py::TestPredictSanityCases::test_all_factors_present PASSED
-tests/test_predict.py::TestPredictEdgeCases::test_missing_input_keys PASSED
-tests/test_predict.py::TestPredictEdgeCases::test_invalid_input_values PASSED
-tests/test_predict.py::TestPredictConsistency::test_same_input_same_output PASSED
-
-============================== 11 passed in 0.26s =============================
-```
+**Expected Result:** all collected prediction-contract tests pass. The exact count may increase as validation coverage is added.
 
 ### 4. Start the Application
 
@@ -103,7 +85,6 @@ INFO:     Started reloader process [12345] using StatReload
 INFO:     Started server process [12346]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:backend.services.model_service:model.pkl not found, will use rule-based prediction
 ```
 
 ### 5. Access the Application
@@ -114,7 +95,7 @@ INFO:backend.services.model_service:model.pkl not found, will use rule-based pre
 
 **Expected Result:**
 - Web page loads with form inputs
-- After clicking predict: Shows risk percentage, color-coded display, and breakdown of factors
+- After clicking predict: Shows the predicted class and Light/Dangerous probabilities
 
 ## API Testing
 
@@ -122,56 +103,36 @@ INFO:backend.services.model_service:model.pkl not found, will use rule-based pre
 
 ```powershell
 # Test the prediction endpoint directly (requires backend running)
-curl -X POST "http://127.0.0.1:8000/predict" ^
-  -H "Content-Type: application/json" ^
-  -d "{\"road_type\":\"urban\",\"weather\":\"clear\",\"time_of_day\":\"day\",\"lighting\":\"daylight\",\"junction\":\"no_junction\",\"road_surface\":\"dry\"}"
+$body = @{
+  SHAA = "08:00"
+  HODESH_TEUNA = "january"
+  YOM_BASHAVUA = "sunday"
+  SUG_TEUNA = "front_to_side_collision"
+  ROAD_STRUCTURE = "single_lane_1"
+  ROHAV = "5_to_7_meters"
+  NAFA = "tel_aviv"
+  ZURAT_ISHUV = "jewish_city_100k_200k"
+  MEHIRUT_MUTERET = "up_to_50_kmh"
+  TEURA = "daylight"
+  SUG_DEREH = "urban_intersection"
+  SIMUN_TIMRUR = "no_defect"
+  TKINUT = "no_defect"
+  PNE_KVISH = "dry"
+  MEZEG_AVIR = "clear"
+  YOM_LAYLA = "day"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/predict" -ContentType "application/json" -Body $body
 ```
 
-**Expected Result:**
-```json
-{
-  "probability": 0.14,
-  "risk_percent": 14,
-  "breakdown": [
-    {
-      "factor": "road_type",
-      "value": "urban",
-      "delta": 0.04,
-      "note": "Urban driving has many interactions"
-    },
-    {
-      "factor": "weather",
-      "value": "clear",
-      "delta": 0.0,
-      "note": "Good conditions"
-    },
-    {
-      "factor": "time_of_day",
-      "value": "day",
-      "delta": 0.0,
-      "note": "Daytime"
-    },
-    {
-      "factor": "lighting",
-      "value": "daylight",
-      "delta": 0.0,
-      "note": "Good lighting"
-    },
-    {
-      "factor": "junction",
-      "value": "no_junction",
-      "delta": 0.0,
-      "note": "No junction"
-    },
-    {
-      "factor": "road_surface",
-      "value": "dry",
-      "delta": 0.0,
-      "note": "Dry surface"
-    }
-  ]
-}
-```
+**Expected response contract:**
+
+- `prediction`: integer class, `0` or `1`.
+- `prediction_label`: `Light accident` or `Dangerous accident`.
+- `light_probability`: floating-point probability in `[0, 1]`.
+- `dangerous_probability`: floating-point probability in `[0, 1]`.
+
+The exact prediction and probabilities come from the saved model and are not hard-coded in this runbook.
 
 ## Alternative Frontend Serving
 

@@ -44,7 +44,7 @@ backend/ (FastAPI)
 ├── models/
 │   └── schemas.py      # Pydantic request/response models
 └── services/
-    ├── model_service.py           # ML inference (loads model.pkl or fallback)
+    ├── model_service.py           # Required saved-model loading and inference
     ├── data_mapper.py             # 16-feature mapping system ⭐
     └── README_DATA_MAPPER.md      # Complete documentation ⭐
 
@@ -67,22 +67,22 @@ scripts/system_check.py        # System readiness checklist ⭐
 **16 Features Implemented**:
 ```python
 FEATURE_CONFIG = {
-    'SHAA': {...},                    # Hour (0-23)
-    'HODESH_TEUNA': {...},            # Month (1-12)
-    'YOM_BASHAVUA': {...},            # Day of week (0-6)
-    'SUG_TEUNA': {...},               # Accident type (0-4)
-    'ROAD_STRUCTURE': {...},          # Road layout (0-4) [ENGINEERED]
-    'ROHAV': {...},                   # Road width (0-5)
-    'NAFA': {...},                    # Road grade (0-3)
-    'ZURAT_ISHUV': {...},             # Urban/rural (0-1)
-    'MEHIRUT_MUTERET': {...},         # Speed limit (0-8) [INCLUDES 120 km/h EDGE CASE]
-    'TEURA': {...},                   # Driving conditions (0-4)
-    'SUG_DEREH': {...},               # Road type (0-4)
-    'SIMUN_TIMRUR': {...},            # Traffic signals (0-3)
-    'MEKOM_HAZIYA': {...},            # Accident location (0-5)
-    'TKINUT': {...},                  # Lighting (0-2)
-    'OFEN_HAZIYA': {...},             # Type of occurrence (0-3)
-    'PNE_KVISH': {...},               # Road surface (0-4)
+    'SHAA': {...},                    # Quarter-hour time code
+    'HODESH_TEUNA': {...},            # Month
+    'YOM_BASHAVUA': {...},            # Day of week
+    'SUG_TEUNA': {...},               # Accident type
+    'ROAD_STRUCTURE': {...},          # Road structure
+    'ROHAV': {...},                   # Road width
+    'NAFA': {...},                    # District
+    'ZURAT_ISHUV': {...},             # Settlement form
+    'MEHIRUT_MUTERET': {...},         # Speed limit
+    'TEURA': {...},                   # Lighting conditions
+    'SUG_DEREH': {...},               # Road type
+    'SIMUN_TIMRUR': {...},            # Marking/signage condition
+    'TKINUT': {...},                  # Road-condition integrity
+    'PNE_KVISH': {...},               # Road surface
+    'MEZEG_AVIR': {...},              # Weather
+    'YOM_LAYLA': {...},               # Day/night indicator
 }
 ```
 
@@ -111,13 +111,13 @@ road_structure = engineer_road_structure(df)
 ```javascript
 const translations = {
   en: {
-    "road_type": "Road Type",
-    "time_of_day": "Time of Day",
+    "label_SUG_DEREH": "Road Type",
+    "label_SHAA": "Time",
     // ... etc
   },
   he: {
-    "road_type": "סוג דרך",
-    "time_of_day": "שעת היום",
+    "label_SUG_DEREH": "סוג דרך",
+    "label_SHAA": "שעה",
     // ... etc
   }
 };
@@ -125,11 +125,11 @@ const translations = {
 
 **Form Submission Flow**:
 ```javascript
-// 1. User submits form with Hebrew values
-// 2. extractFormValues() collects data
-// 3. Sends POST to /predict with raw strings
-// 4. Backend converts strings → integers → prediction
-// 5. Response received and rendered with risk gauge
+// 1. User completes all 16 selectors
+// 2. predict() builds the uppercase 16-field payload
+// 3. Frontend sends POST /predict
+// 4. Backend validates and maps the payload for the saved model
+// 5. Frontend renders the returned class and probabilities
 ```
 
 ### 3. API Contract (`backend/routes/predict.py`)
@@ -137,26 +137,31 @@ const translations = {
 **Request Schema**:
 ```python
 class PredictRequest(BaseModel):
-    road_type: str                    # Hebrew string from <option value>
-    weather: str                      # Hebrew string
-    time_of_day: str                  # Hebrew string
-    lighting: str                     # Hebrew string
-    junction: str                     # Hebrew string
-    road_surface: str                 # Hebrew string
+    SHAA: int | str
+    HODESH_TEUNA: int | str
+    YOM_BASHAVUA: int | str
+    SUG_TEUNA: int | str
+    ROAD_STRUCTURE: int | str
+    ROHAV: int | str
+    NAFA: int | str
+    ZURAT_ISHUV: int | str
+    MEHIRUT_MUTERET: int | str
+    TEURA: int | str
+    SUG_DEREH: int | str
+    SIMUN_TIMRUR: int | str
+    TKINUT: int | str
+    PNE_KVISH: int | str
+    MEZEG_AVIR: int | str
+    YOM_LAYLA: int | str
 ```
 
 **Response Schema**:
 ```python
 class ModelResult(BaseModel):
-    probability: float                # 0.0-0.95 (capped for safety)
-    risk_percent: int                 # 0-100% display value
-    breakdown: List[Dict]             # Risk factor details
-    # breakdown[i] = {
-    #   "factor": "Speed Limit",
-    #   "value": "High Risk",
-    #   "delta": 0.15,
-    #   "note": "Increased speed → higher accident risk"
-    # }
+    prediction: int
+    prediction_label: str
+    light_probability: float
+    dangerous_probability: float
 ```
 
 **Endpoint**: `POST http://127.0.0.1:8000/predict`
@@ -193,34 +198,39 @@ uvicorn backend.app:app --reload --port 8000
 
 ## 🔧 Key Implementation Details
 
-### Hebrew↔Integer Mapping Example
+### Application-Key-to-Model Mapping Example
 
 **Frontend sends**:
 ```json
 {
-  "road_type": "עירוני בצומת",
-  "weather": "גשום",
-  "time_of_day": "14:00",
-  "lighting": "חסר תאורה",
-  "junction": "כן",
-  "road_surface": "רטוב ממים"
+  "SHAA": "08:00",
+  "HODESH_TEUNA": "january",
+  "YOM_BASHAVUA": "sunday",
+  "SUG_TEUNA": "front_to_side_collision",
+  "ROAD_STRUCTURE": "single_lane_1",
+  "ROHAV": "5_to_7_meters",
+  "NAFA": "tel_aviv",
+  "ZURAT_ISHUV": "jewish_city_100k_200k",
+  "MEHIRUT_MUTERET": "up_to_50_kmh",
+  "TEURA": "daylight",
+  "SUG_DEREH": "urban_intersection",
+  "SIMUN_TIMRUR": "no_defect",
+  "TKINUT": "no_defect",
+  "PNE_KVISH": "dry",
+  "MEZEG_AVIR": "clear",
+  "YOM_LAYLA": "day"
 }
 ```
 
 **Backend converts to**:
 ```python
-prepare_model_input({
-    "road_type": "עירוני בצומת",      # → SUG_DEREH: 1
-    "weather": "גשום",               # → TKINUT or similar
-    "time_of_day": "14:00",           # → SHAA: 14
-    "lighting": "חסר תאורה",          # → feature code
-    "junction": "כן",                 # → feature code
-    "road_surface": "רטוב ממים"     # → PNE_KVISH: 2
-})
+model_input = prepare_model_input(request_payload)
+model_frame = prepare_model_frame(request_payload, FEATURE_ORDER)
 
-# Result (numpy array):
-# [14, 5, 3, 1, 2, 4, 1, 1, 4, 2, 1, 2, 3, 0, 1, 2]
+# model_frame has one row and the exact 16 columns in FEATURE_ORDER.
 ```
+
+Here, `request_payload` is the validated 16-field request shown above.
 
 ### Edge Cases Handled
 
@@ -234,21 +244,17 @@ prepare_model_input({
 
 ### URL Query Parameters Conversion
 
-Frontend HTML `<option value>` must match backend mapping keys:
+Frontend HTML `<option value>` must match the descriptive keys in the backend mapping:
 ```html
 <!-- frontend/index.html -->
-<option value="עירוני בצומת">Urban at Junction</option>
-<option value="עירוני לא בצומת">Urban Not at Junction</option>
+<option value="urban_intersection">Urban at Junction</option>
+<option value="urban_non_intersection">Urban Not at Junction</option>
 ```
 
-Gets sent to backend as string, converted via:
-```python
-ROAD_TYPE_MAPPING = {
-    "עירוני בצומת": 1,
-    "עירוני לא בצומת": 2,
-    "לא עירוני בצומת": 3,
-    "לא עירוני לא בצומת": 4,
-}
+The authoritative `SUG_DEREH` mapping is loaded from:
+
+```text
+backend/services/feature_value_mappings.json
 ```
 
 ---
@@ -326,14 +332,14 @@ pip install -r requirements.txt
 
 ### 2. Prepare ML Model
 ```bash
-# Place trained model at project root:
-model.pkl
+# Final saved model used by the application:
+safe_roads_ml/final_model/saved_model/safe_roads_model.joblib
 
 # The model must:
 # - Accept input shape (n, 16) where n = num samples
 # - Implement predict_proba() returning (n, 2) array
-# - Return probabilities: [p_no_accident, p_accident]
-# - Be picklable: import pickle; pickle.load(open("model.pkl", "rb"))
+# - Return probabilities aligned to classes 0 (Light) and 1 (Dangerous)
+# - Be loadable with joblib under the declared scikit-learn dependency
 ```
 
 ### 3. Start Server
@@ -400,7 +406,7 @@ project_root/
 | Problem | Solution |
 |---------|----------|
 | **CORS Error** | Update `ALLOWED_ORIGINS` in `backend/config.py` |
-| **Model not loading** | Ensure `model.pkl` at project root or check fallback logic |
+| **Model not loading** | Verify `safe_roads_ml/final_model/saved_model/safe_roads_model.joblib` and its runtime dependencies |
 | **Hebrew characters garbled** | Verify `encoding='utf-8'` in file reads |
 | **Feature mismatch** | Check frontend `<option value>` matches `*_MAPPING` keys |
 | **Runtime "unknown value"** | Value not in mapping dict; returns 0 (default) + warning |
@@ -426,14 +432,7 @@ project_root/
 ```bash
 curl -X POST http://127.0.0.1:8000/predict \
   -H "Content-Type: application/json" \
-  -d '{
-    "road_type": "עירוני בצומת",
-    "weather": "בהיר",
-    "time_of_day": "14:00",
-    "lighting": "בהיר",
-    "junction": "כן",
-    "road_surface": "יבש"
-  }'
+  -d '{"SHAA":"08:00","HODESH_TEUNA":"january","YOM_BASHAVUA":"sunday","SUG_TEUNA":"front_to_side_collision","ROAD_STRUCTURE":"single_lane_1","ROHAV":"5_to_7_meters","NAFA":"tel_aviv","ZURAT_ISHUV":"jewish_city_100k_200k","MEHIRUT_MUTERET":"up_to_50_kmh","TEURA":"daylight","SUG_DEREH":"urban_intersection","SIMUN_TIMRUR":"no_defect","TKINUT":"no_defect","PNE_KVISH":"dry","MEZEG_AVIR":"clear","YOM_LAYLA":"day"}'
 ```
 
 ### Python Request
@@ -443,41 +442,38 @@ import requests
 response = requests.post(
     "http://127.0.0.1:8000/predict",
     json={
-        "road_type": "עירוני בצומת",
-        "weather": "בהיר",
-        "time_of_day": "14:00",
-        "lighting": "בהיר",
-        "junction": "כן",
-        "road_surface": "יבש"
+        "SHAA": "08:00",
+        "HODESH_TEUNA": "january",
+        "YOM_BASHAVUA": "sunday",
+        "SUG_TEUNA": "front_to_side_collision",
+        "ROAD_STRUCTURE": "single_lane_1",
+        "ROHAV": "5_to_7_meters",
+        "NAFA": "tel_aviv",
+        "ZURAT_ISHUV": "jewish_city_100k_200k",
+        "MEHIRUT_MUTERET": "up_to_50_kmh",
+        "TEURA": "daylight",
+        "SUG_DEREH": "urban_intersection",
+        "SIMUN_TIMRUR": "no_defect",
+        "TKINUT": "no_defect",
+        "PNE_KVISH": "dry",
+        "MEZEG_AVIR": "clear",
+        "YOM_LAYLA": "day",
     }
 )
 
 result = response.json()
-print(f"Risk: {result['risk_percent']}%")
-print(f"Probability: {result['probability']:.2%}")
+print(result["prediction_label"])
+print(result["light_probability"], result["dangerous_probability"])
 ```
 
-### Response Example
-```json
-{
-  "probability": 0.45,
-  "risk_percent": 45,
-  "breakdown": [
-    {
-      "factor": "Speed Limit",
-      "value": "80 km/h",
-      "delta": 0.10,
-      "note": "Higher speed zones correlate with increased accident risk"
-    },
-    {
-      "factor": "Time of Day",
-      "value": "14:00 (Afternoon)",
-      "delta": -0.05,
-      "note": "Afternoon driving shows lower accident risk than night"
-    }
-  ]
-}
-```
+### Response Contract
+
+- `prediction`: integer class `0` or `1`.
+- `prediction_label`: `Light accident` or `Dangerous accident`.
+- `light_probability`: model probability for class `0`.
+- `dangerous_probability`: model probability for class `1`.
+
+Exact prediction values depend on the saved model and request; this guide does not hard-code an example result.
 
 ---
 
@@ -485,14 +481,14 @@ print(f"Probability: {result['probability']:.2%}")
 
 - [ ] All 16 features configured in `FEATURE_CONFIG`
 - [ ] `frontend/index.html` options match backend mappings
-- [ ] `model.pkl` present and loadable
+- [ ] `safe_roads_ml/final_model/saved_model/safe_roads_model.joblib` present and loadable
 - [ ] Dataset preprocessed: `data/accidents_processed.pkl`
 - [ ] Backend runs without errors: `uvicorn backend.app:app --reload --port 8000`
 - [ ] Integration tests pass: `python integration_test.py`
 - [ ] System checks pass: `python system_check.py`
 - [ ] Frontend accessible at `http://127.0.0.1:8000`
 - [ ] Form submission produces valid prediction
-- [ ] Response shows risk percentage and breakdown
+- [ ] Response contains the class label and Light/Dangerous probabilities
 - [ ] Hebrew and English both functional
 - [ ] Linear gauge displays correctly
 - [ ] No JavaScript errors in browser console

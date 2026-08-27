@@ -76,74 +76,18 @@ def _target_labels() -> Dict[int, str]:
     }
 
 
-def _normalize_legacy_verification_payload(user_input: Dict[str, Any]) -> Dict[str, Any]:
-    """Fill in the 16 features from an older 6-field verification payload."""
-    legacy_keys = {"road_type", "weather", "time_of_day", "lighting", "junction", "road_surface"}
-    if not legacy_keys.intersection(user_input.keys()):
-        return user_input
-
-    normalized = dict(user_input)
-    time_of_day = str(user_input.get("time_of_day", "")).strip().lower()
-    lighting = str(user_input.get("lighting", "")).strip().lower()
-    weather = str(user_input.get("weather", "")).strip().lower()
-    road_type = str(user_input.get("road_type", "")).strip().lower()
-    junction = str(user_input.get("junction", "")).strip().lower()
-    road_surface = str(user_input.get("road_surface", "")).strip().lower()
-
-    normalized.setdefault("SHAA", "12:00" if time_of_day == "day" else "22:00")
-    normalized.setdefault("HODESH_TEUNA", 1)
-    normalized.setdefault("YOM_BASHAVUA", 1)
-    normalized.setdefault("SUG_TEUNA", "other")
-    normalized.setdefault("ROAD_STRUCTURE", "other")
-    normalized.setdefault("ROHAV", "other")
-    normalized.setdefault("NAFA", "unknown")
-    normalized.setdefault("ZURAT_ISHUV", "urban_intersection" if road_type in {"urban", "city"} and junction not in {"no_junction", "false", "0"} else ("urban_non_intersection" if road_type in {"urban", "city"} else ("non_urban_intersection" if junction not in {"no_junction", "false", "0"} else "non_urban_non_intersection")))
-    normalized.setdefault("MEHIRUT_MUTERET", "50")
-    normalized.setdefault(
-        "TEURA",
-        "daylight"
-        if lighting in {"daylight", "day"} or time_of_day == "day"
-        else (
-            "night_with_working_lighting"
-            if lighting == "night_with_lighting"
-            else ("night_without_lighting" if lighting == "night_without_lighting" else "unknown_daylight_conditions")
-        ),
-    )
-    normalized.setdefault(
-        "SUG_DEREH",
-        "urban_intersection"
-        if road_type in {"urban", "city"} and junction not in {"no_junction", "false", "0"}
-        else (
-            "urban_non_intersection"
-            if road_type in {"urban", "city"}
-            else ("non_urban_intersection" if junction not in {"no_junction", "false", "0"} else "non_urban_non_intersection")
-        ),
-    )
-    normalized.setdefault("SIMUN_TIMRUR", "unknown")
-    normalized.setdefault("TKINUT", "normal")
-    normalized.setdefault(
-        "PNE_KVISH",
-        "dry"
-        if road_surface == "dry"
-        else (
-            "wet"
-            if road_surface == "wet"
-            else ("muddy" if road_surface == "mud" else ("covered_with_fuel" if road_surface == "fuel" else "unknown"))
-        ),
-    )
-    normalized.setdefault(
-        "MEZEG_AVIR",
-        "clear"
-        if weather == "clear"
-        else ("rainy" if weather == "rainy" else ("foggy" if weather == "foggy" else ("hot_and_dry" if weather == "hot_and_dry" else "unknown")))
-    )
-    normalized.setdefault("YOM_LAYLA", "day" if time_of_day == "day" else ("night" if time_of_day == "night" else "day"))
-
-    return normalized
-
-
 def _final_feature_frame(user_input: Dict[str, Any]) -> pd.DataFrame:
     """Build the single-row model input frame from user input."""
+    missing = [feature for feature in FEATURE_ORDER if feature not in user_input]
+    unexpected = sorted(set(user_input).difference(FEATURE_ORDER))
+    if missing or unexpected:
+        details = []
+        if missing:
+            details.append(f"missing required fields: {', '.join(missing)}")
+        if unexpected:
+            details.append(f"unexpected fields: {', '.join(unexpected)}")
+        raise ValueError("Invalid prediction payload; " + "; ".join(details))
+
     return prepare_model_frame(user_input, FEATURE_ORDER)
 
 
@@ -184,8 +128,7 @@ def _prediction_response(prediction: int, light_probability: float, dangerous_pr
 def predict_probability(user_input: Dict[str, Any]) -> Dict[str, Any]:
     """Predict the binary accident class for the final 16-feature payload."""
 
-    normalized_input = _normalize_legacy_verification_payload(dict(user_input))
-    frame = _final_feature_frame(normalized_input)
+    frame = _final_feature_frame(dict(user_input))
     # Require the trained model; there is no fallback — fail loudly if it is missing.
     if not _load_model() or _cached_model is None:
         logger.error("Final model not available at %s; prediction disabled", MODEL_PATH)

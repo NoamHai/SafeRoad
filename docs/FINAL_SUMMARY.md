@@ -57,7 +57,7 @@ backend/
 ├── app.py              ✅ Main FastAPI application + static file serving
 ├── config.py           ✅ Settings & CORS configuration
 ├── services/
-│   ├── model_service.py ✅ ML inference (model.pkl + fallback logic)
+│   ├── model_service.py ✅ Required saved-model loading and ML inference
 │   ├── data_mapper.py   ✨ 16-feature mapping system (NEW - 550+ lines)
 │   └── README_DATA_MAPPER.md ✨ Complete documentation (NEW - 500+ lines)
 ├── routes/
@@ -88,38 +88,38 @@ backend/
 ### 16-Feature Strict Model Pipeline
 ```python
 FEATURE_CONFIG = {
-    'SHAA': (Hour 0-23),
-    'HODESH_TEUNA': (Month 1-12),
-    'YOM_BASHAVUA': (Day 0-6),
-    'SUG_TEUNA': (Accident Type 0-4),
-    'ROAD_STRUCTURE': (Layout 0-4) [ENGINEERED],
-    'ROHAV': (Width 0-5),
-    'NAFA': (Grade 0-3),
-    'ZURAT_ISHUV': (Urban 0-1),
-    'MEHIRUT_MUTERET': (Speed 0-8) [INCLUDES 120 km/h],
-    'TEURA': (Conditions 0-4),
-    'SUG_DEREH': (Type 0-4),
-    'SIMUN_TIMRUR': (Signals 0-3),
-    'MEKOM_HAZIYA': (Location 0-5),
-    'TKINUT': (Lighting 0-2),
-    'OFEN_HAZIYA': (Occurrence 0-3),
-    'PNE_KVISH': (Surface 0-4),
+    'SHAA': (Quarter-hour time),
+    'HODESH_TEUNA': (Month),
+    'YOM_BASHAVUA': (Day of week),
+    'SUG_TEUNA': (Accident type),
+    'ROAD_STRUCTURE': (Road structure),
+    'ROHAV': (Road width),
+    'NAFA': (District),
+    'ZURAT_ISHUV': (Settlement form),
+    'MEHIRUT_MUTERET': (Speed limit),
+    'TEURA': (Lighting),
+    'SUG_DEREH': (Road type),
+    'SIMUN_TIMRUR': (Marking/signage),
+    'TKINUT': (Road-condition integrity),
+    'PNE_KVISH': (Road surface),
+    'MEZEG_AVIR': (Weather),
+    'YOM_LAYLA': (Day/night),
 }
 ```
 
 ### Data Conversion Pipeline
 ```
-HTML Form (Hebrew strings)
+HTML Form (16 current application values)
   ↓
 PredictRequest (JSON dict)
   ↓
 prepare_model_input() (dict → dict with integer codes)
   ↓
-prepare_model_array() (numpy array shape (16,))
+prepare_model_frame() (one row in FEATURE_ORDER)
   ↓
 ML Model Prediction
   ↓
-ModelResult (probability + breakdown)
+ModelResult (class + Light/Dangerous probabilities)
   ↓
 JavaScript Rendering
 ```
@@ -244,7 +244,7 @@ pytest tests/test_predict.py -v
 2. ✅ Frontend accessible and responsive
 3. ✅ API endpoint accepting POST requests
 4. ✅ Data pipeline converting Hebrew → integer codes
-5. ✅ Predictions generating with risk breakdown
+5. ✅ Predictions returning class and Light/Dangerous probabilities
 6. ✅ RTL/LTR language switching functional
 7. ✅ Gauge animating smoothly
 8. ✅ Error handling graceful with user feedback
@@ -370,8 +370,8 @@ uvicorn backend.app:app --reload --port 8000
 # 4. Test API (in another terminal)
 curl -X POST http://127.0.0.1:8000/predict \
   -H "Content-Type: application/json" \
-  -d '{"road_type":"עירוני בצומת","weather":"בהיר","time_of_day":"14:00","lighting":"בהיר","junction":"כן","road_surface":"יבש"}'
-# Expected: JSON response with probability, risk_percent, breakdown
+  -d '{"SHAA":"08:00","HODESH_TEUNA":"january","YOM_BASHAVUA":"sunday","SUG_TEUNA":"front_to_side_collision","ROAD_STRUCTURE":"single_lane_1","ROHAV":"5_to_7_meters","NAFA":"tel_aviv","ZURAT_ISHUV":"jewish_city_100k_200k","MEHIRUT_MUTERET":"up_to_50_kmh","TEURA":"daylight","SUG_DEREH":"urban_intersection","SIMUN_TIMRUR":"no_defect","TKINUT":"no_defect","PNE_KVISH":"dry","MEZEG_AVIR":"clear","YOM_LAYLA":"day"}'
+# Expected fields: prediction, prediction_label, light_probability, dangerous_probability
 
 # 5. Access frontend
 # Open browser: http://127.0.0.1:8000

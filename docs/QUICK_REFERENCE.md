@@ -33,15 +33,15 @@ form.values → JSON
   ↓
 POST /predict
   ↓
-PredictRequest (Hebrew strings)
+PredictRequest (16 required current fields)
   ↓
-prepare_model_array() ← ✨ Core conversion
+prepare_model_frame() ← ordered model input
   ↓
-predict_probability(array)
+predict_probability(payload)
   ↓
-ModelResult (probability + breakdown)
+ModelResult (class + Light/Dangerous probabilities)
   ↓
-Render gauge, risk percentage
+Render class and probability display
 ```
 
 ---
@@ -150,8 +150,10 @@ pytest tests/test_predict.py -v
 # Test endpoint with curl
 curl -X POST http://127.0.0.1:8000/predict \
   -H "Content-Type: application/json" \
-  -d '{"road_type":"עירוני בצומת","weather":"בהיר","time_of_day":"14:00","lighting":"בהיר","junction":"כן","road_surface":"יבש"}'
+  -d '{"SHAA":"08:00","HODESH_TEUNA":"january","YOM_BASHAVUA":"sunday","SUG_TEUNA":"front_to_side_collision","ROAD_STRUCTURE":"single_lane_1","ROHAV":"5_to_7_meters","NAFA":"tel_aviv","ZURAT_ISHUV":"jewish_city_100k_200k","MEHIRUT_MUTERET":"up_to_50_kmh","TEURA":"daylight","SUG_DEREH":"urban_intersection","SIMUN_TIMRUR":"no_defect","TKINUT":"no_defect","PNE_KVISH":"dry","MEZEG_AVIR":"clear","YOM_LAYLA":"day"}'
 ```
+
+The response contains `prediction`, `prediction_label`, `light_probability`, and `dangerous_probability`. Exact values are produced by the saved model.
 
 ---
 
@@ -177,18 +179,13 @@ curl -X POST http://127.0.0.1:8000/predict \
 
 ---
 
-## 📋 Form Fields (6 Required)
+## 📋 Prediction Request Fields (16 Required)
 
-```html
-<input name="road_type" />       ← SUG_DEREH
-<input name="weather" />         ← TKINUT or related
-<input name="time_of_day" />     ← SHAA
-<input name="lighting" />        ← related to TKINUT
-<input name="junction" />        ← related to SUG_DEREH
-<input name="road_surface" />    ← PNE_KVISH
-```
+`SHAA`, `HODESH_TEUNA`, `YOM_BASHAVUA`, `SUG_TEUNA`, `ROAD_STRUCTURE`,
+`ROHAV`, `NAFA`, `ZURAT_ISHUV`, `MEHIRUT_MUTERET`, `TEURA`, `SUG_DEREH`,
+`SIMUN_TIMRUR`, `TKINUT`, `PNE_KVISH`, `MEZEG_AVIR`, and `YOM_LAYLA`.
 
-⚠️ **Important**: Frontend `name` attributes must match backend field expectations.
+⚠️ **Important**: All 16 fields are required, and request keys must match the backend contract exactly.
 
 ---
 
@@ -198,18 +195,18 @@ curl -X POST http://127.0.0.1:8000/predict \
 ```javascript
 // frontend/script.js
 const translations = {
-  en: { "road_type": "Road Type", ... },
-  he: { "road_type": "סוג דרך", ... }
+  en: { "label_SUG_DEREH": "Road Type", ... },
+  he: { "label_SUG_DEREH": "סוג דרך", ... }
 };
 
 // Switch language (in console)
-switchLanguage('he');  // Hebrew (RTL)
-switchLanguage('en');  // English (LTR)
+setLanguage('he');  // Hebrew (RTL)
+setLanguage('en');  // English (LTR)
 ```
 
 ### Data i18n Attributes
 ```html
-<label data-i18n-key="road_type"></label>
+<label data-i18n="label_SUG_DEREH"></label>
 <!-- Automatically translates based on current language -->
 ```
 
@@ -299,8 +296,8 @@ Install all: `pip install -r requirements-dev.txt`
 - [ ] Form submits successfully
 - [ ] Gauge animates smoothly
 - [ ] Language toggle works (English ↔ Hebrew)
-- [ ] Risk percentage displays correctly
-- [ ] Breakdown shows 3-5 factors
+- [ ] Light and Dangerous percentages display correctly
+- [ ] Predicted class matches the larger returned probability
 - [ ] No console errors (F12)
 - [ ] RTL layout perfect for Hebrew
 - [ ] LTR layout perfect for English
