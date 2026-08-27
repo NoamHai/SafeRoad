@@ -1,0 +1,206 @@
+SHAA — שעה:
+Format:
+00:00 -> 1
+00:15 -> 2
+00:30 -> 3
+...
+23:45 -> 96
+
+
+HODESH_TEUNA — חודש תאונה:
+january — ינואר
+february — פברואר
+march — מרץ
+april — אפריל
+may — מאי
+june — יוני
+july — יולי
+august — אוגוסט
+september — ספטמבר
+october — אוקטובר
+november — נובמבר
+december — דצמבר
+
+
+YOM_BASHAVUA — יום בשבוע:
+sunday — ראשון
+monday — שני
+tuesday — שלישי
+wednesday — רביעי
+thursday — חמישי
+friday — שישי
+saturday — שבת
+
+
+SUG_TEUNA — סוג תאונה:
+pedestrian_collision — פגיעה בהולך רגל
+front_to_side_collision — התנגשות חזית אל צד
+front_to_rear_collision — התנגשות חזית באחור
+side_to_side_collision — התנגשות צד בצד
+head_on_collision — התנגשות חזית אל חזית
+collision_with_stopped_vehicle_not_parked — התנגשות עם רכב שנעצר ללא חניה
+collision_with_parked_vehicle — התנגשות עם רכב חונה
+collision_with_stationary_object — התנגשות עם עצם דומם
+leaving_or_entering_road — ירידה מהכביש או עליה
+rollover — התהפכות
+skidding — החלקה
+passenger_injury_inside_vehicle — פגיעה בנוסע בתוך כלי רכב
+fall_in_moving_vehicle — נפילה ברכב נע
+fire — שריפה
+other — אחר
+rear_to_front_collision — התנגשות אחור אל חזית
+rear_to_side_collision — התנגשות אחור אל צד
+collision_with_animal — התנגשות עם בעל חיים
+injury_from_vehicle_cargo — פגיעה ממטען של רכב
+
+
+ROAD_STRUCTURE — מבנה כביש:
+single_lane_1 — כביש חד מסלולי
+single_lane_2 — כביש דו מסלולי עם שטח הפרדה בנוי
+single_lane_3 — כביש דו מסלולי ללא שטח הפרדה בנוי
+multi_lane_1 — כביש רב מסלולי עם שטח הפרדה מסומן
+multi_lane_2 — כביש רב מסלולי עם מעקה הפרדה
+multi_lane_3 — כביש רב מסלולי עם שטח הפרדה לא בנוי
+multi_lane_4 — כביש רב מסלולי ללא שטח הפרדה
+other — אחר / לא ידוע
+
+
+MEHIRUT_MUTERET — מהירות מותרת:
+unknown_speed_limit — לא ידוע
+up_to_50_kmh — עד 50 קמ״ש
+60_kmh — 60 קמ״ש
+70_kmh — 70 קמ״ש
+80_kmh — 80 קמ״ש
+90_kmh — 90 קמ״ש
+100_kmh — 100 קמ״ש
+110_kmh — 110 קמ״ש
+120_kmh — 120 קמ״ש
+
+TKINUT — תקינות הכביש:
+unknown_road_condition — לא ידוע
+no_defect — אין ליקוי
+poor_road_shoulders — שוליים גרועים
+uneven_surface — כביש משובש
+poor_road_shoulders_and_uneven_surface — שוליים גרועים וכביש משובש
+
+ROHAV — רוחב כביש:
+unknown_road_width — לא ידוע
+up_to_5_meters — עד 5 מטר
+5_to_7_meters — 5 עד 7
+7_to_10_5_meters — 7 עד 10.5
+10_5_to_14_meters — 10.5 עד 14
+more_than_14_meters — יותר מ-14
+
+TEURA — תאורה:
+daylight — אור יום רגיל
+limited_visibility_due_to_weather — ראות מוגבלת עקב מזג אוויר
+night_with_working_lighting — לילה פעלה תאורה
+night_with_faulty_or_non_working_lighting — קיימת תאורה בלתי תקינה / לא פועלת
+night_without_lighting — לילה לא קיימת תאורה
+night_unknown_lighting — לילה לא ידוע
+night_with_working_lighting_and_limited_visibility — לילה תאורה תקינה עם ראות מוגבלת
+night_with_faulty_lighting_and_limited_visibility — לילה תאורה לא תקינה עם ראות מוגבלת
+night_without_lighting_and_limited_visibility — לילה ללא תאורה עם ראות מוגבלת
+twilight — דמדומים
+unknown_daylight_conditions — יום לא ידוע
+
+
+SUG_DEREH — סוג דרך:
+urban_intersection — דרך עירונית בצומת
+urban_non_intersection — דרך עירונית לא בצומת
+non_urban_intersection — דרך לא עירונית בצומת
+non_urban_non_intersection — דרך לא עירונית לא בצומת
+
+
+SIMUN_TIMRUR — סימון / תמרור:
+defective_or_missing_road_marking — סימון לקוי או חסר
+defective_or_missing_sign — תמרור לקוי או חסר
+no_defect — אין ליקוי
+no_sign_required — לא נדרש תמרור
+unknown — לא ידוע
+
+
+PNE_KVISH — פני כביש:
+dry — יבש
+wet — רטוב ממים
+covered_with_fuel — מרוח בחומר דלק
+muddy — מכוסה בבוץ
+sand_or_gravel — חול או חצץ על הכביש
+other — אחר
+unknown — לא ידוע
+
+
+MEZEG_AVIR — מזג אוויר:
+clear — בהיר
+rainy — גשום
+hot_and_dry — שרבי
+foggy — ערפילי
+other — אחר
+unknown — לא ידוע
+
+
+YOM_LAYLA — יום / לילה:
+day — יום
+night — לילה
+
+
+ZURAT_ISHUV — צורת יישוב:
+urban_refugee_camps — מחנה פליטים עירוני
+jewish_city_500k_plus — יישוב יהודי 500000+
+jewish_city_200k_500k — יישוב יהודי 499999-200000
+jewish_city_100k_200k — יישוב יהודי 199999-100000
+jewish_city_50k_100k — יישוב יהודי 99999-50000
+jewish_city_20k_50k — יישוב יהודי 49999-20000
+jewish_city_10k_20k — יישוב יהודי 19999-10000
+jewish_city_5k_10k — יישוב יהודי 9999-5000
+jewish_city_2k_5k — יישוב יהודי 4999-2000
+non_jewish_city_50k_100k — יישוב לא יהודי 99999-50000
+non_jewish_city_20k_50k — יישוב לא יהודי 49999-20000
+non_jewish_city_10k_20k — יישוב לא יהודי 19999-10000
+non_jewish_city_5k_10k — יישוב לא יהודי 9999-5000
+non_jewish_city_2k_5k — יישוב לא יהודי 4999-2000
+moshav — מושב
+moshav_shitufi — מושב שיתופי
+kibbutz — קיבוץ
+jewish_institutional_settlement — יישוב מוסדי יהודי
+other_jewish_rural_settlement — יישוב כפרי יהודי אחר
+community_settlement — יישוב קהילתי
+non_jewish_institutional_settlement — יישוב מוסדי לא יהודי
+other_non_jewish_rural_settlement — יישוב כפרי לא יהודי אחר
+bedouin_tribes — שבט בדווי
+rural_settlement — יישוב כפרי
+unclassified_place — מקום אחר / לא מסווג
+employment_center — מוקד תעסוקה
+other_kibbutz_area — אזור קיבוצי אחר
+rural_refugee_camps — מחנה פליטים כפרי
+
+
+NAFA — נפה:
+unknown — לא ידוע
+jerusalem — ירושלים
+zefat — צפת
+kinneret — כנרת
+yizreel — יזרעאל
+akko — עכו
+golan — גולן
+haifa — חיפה
+hadera — חדרה
+hasharon — השרון
+petah_tikva — פתח תקווה
+ramla — רמלה
+rehovot — רחובות
+tel_aviv — תל אביב
+ashkelon — אשקלון
+beer_sheva — באר שבע
+jenin — ג'נין
+nablus — שכם
+tulkarm — טול כרם
+ramallah — ראמאללה
+jordan_jericho — ירדן (יריחו)
+bethlehem — בית לחם
+hebron — חברון
+rafah — רפיח
+gaza — עזה
+khan_yunis — חאן יונס
+jabalia — ג'אבליא
+deir_al_balah — דיר אל-בלח

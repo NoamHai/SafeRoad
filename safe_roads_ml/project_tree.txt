@@ -1,0 +1,108 @@
+Folder PATH listing
+Volume serial number is 00000014 A2FF:5162
+C:.
+|   project_tree.txt
+|   
++---archive
+|   \---old_experiments
++---data
+|   +---processed
+|   \---raw
+|           accidents_raw_master.csv
+|           data-2018.csv
+|           data-2019.csv
+|           data-2020.csv
+|           data-2021.csv
+|           data-2022.csv
+|           data-2023.csv
+|           data-dictionary-document-accidents.xlsx
+|           merge.py
+|           
++---docs
+|   +---mentor
+|   |   |   כבישים בטוחים-איאד סולימאן.docx
+|   |   |   
+|   |   \---files_from_iyad
+|   |           accidents_analysis_report.docx
+|   |           accidents_ml_pipeline.py
+|   |           accidents_ml_pipeline_improved.py
+|   |           accidents_raw_master.csv
+|   |           feature_importance_smotenc_rf.csv
+|   |           full_model_reports.txt
+|   |           model_comparison_results.csv
+|   |           README_safe_roads_next_steps.txt
+|   |           
+|   \---submitted
+|           דוח התקדמות פרוייקט - מור בונה ונועם חי.docx
+|           הצעת פרוייקט ראשונית - כבישים בטוחים.docx
+|           פרוייקט כבישים בטוחים - הצעה מורחבת ותכנית לביצוע.pdf
+|           פרוייקט כבישים בטוחים - תכנית ביצוע.docx
+|           
++---eda
+|       accidents_copy_for_data_disturbution.xlsx
+|       distribution.py
+|       distribution_output.txt
+|       HODESH_TEUNA_distribution.png
+|       MEHIRUT_MUTERET_distribution.png
+|       MEZEG_AVIR_distribution.png
+|       SHAA_distribution.png
+|       SUG_DEREH_distribution.png
+|       SUG_YOM_distribution.png
+|       TEURA_distribution.png
+|       YEAR_distribution.png
+|       YOM_BASHAVUA_distribution.png
+|       YOM_LAYLA_distribution.png
+|       
++---feature_selection
+|   \---random_forest
+|           accidents_full_copy.xlsx
+|           rf_feature_importance_binary_full.csv
+|           rf_feature_selection_binary.py
+|           rf_top_10_binary.csv
+|           rf_top_10_features_for_code.txt
+|           rf_top_15_binary.csv
+|           rf_top_15_features_for_code.txt
+|           rf_top_20_binary.csv
+|           rf_top_20_features_for_code.txt
+|           rf_top_5_binary.csv
+|           rf_top_5_features_for_code.txt
+|           
++---final_model
+|   +---evaluation
+|   \---training
+|           accidents_full_copy.xlsx
+|           model_training.py
+|           
+\---model_trials
+    +---binary
+    |   |   accidents_full_copy.xlsx
+    |   |   model_training.py
+    |   |   
+    |   \---runs
+    |           run_binary_16features_top16_20260326_182401.txt
+    |           summary_binary_16features_top16_20260326_182401.csv
+    |           test_results_binary_16features_top16_20260326_182401.csv
+    |           
+    \---previous
+        +---multiclass_10_features
+        |   |   3_model_training.py
+        |   |   accidents_10_feat.xlsx
+        |   |   
+        |   \---runs
+        |           run_20260215_154429.txt
+        |           run_20260215_155749.txt
+        |           run_20260215_161600.txt
+        |           summary_20260215_155749.csv
+        |           summary_20260215_161600.csv
+        |           
+        +---multiclass_14_features
+        +---multiclass_16_features
+        |   |   accidents_full_copy.xlsx
+        |   |   model_training_trial.py
+        |   |   
+        |   \---runs
+        |           run_20260515_215009.txt
+        |           summary_20260515_215009.csv
+        |           
+        +---no_onehot_14_features
+        \---undersampling_14_features

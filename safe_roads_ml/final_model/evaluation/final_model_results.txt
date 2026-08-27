@@ -1,0 +1,28 @@
+Final Safe Roads Model
+======================
+
+Model: HistGradientBoostingClassifier
+Samples: 66892
+Features: 16
+
+Metrics:
+accuracy: 0.7309
+balanced_accuracy: 0.6879
+f1_binary: 0.5006
+f1_macro: 0.6582
+precision_dangerous: 0.4240
+recall_dangerous: 0.6109
+
+Classification report:
+               precision    recall  f1-score   support
+
+    Light (0)     0.8741    0.7649    0.8159     10426
+Dangerous (1)     0.4240    0.6109    0.5006      2953
+
+     accuracy                         0.7309     13379
+    macro avg     0.6490    0.6879    0.6582     13379
+ weighted avg     0.7747    0.7309    0.7463     13379
+
+Confusion matrix:
+[[7975 2451]
+ [1149 1804]]

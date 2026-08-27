@@ -1,0 +1,47 @@
+# Safe Roads Project - Git Ignore Rules
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE configuration
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment secrets
+.env
+.env.local
+.env.*.local
+
+# Large datasets (exist locally, excluded from repo)
+
+# Trained model binaries (exist locally, excluded from repo)
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+
+# Claude Code project documentation

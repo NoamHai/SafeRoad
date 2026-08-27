@@ -1,0 +1,831 @@
+/* ============================================================
+   Safe Roads – Accident Risk Predictor
+   Clean analytics-dashboard UI. Single, token-based stylesheet.
+   Layout uses CSS logical properties so RTL (Hebrew) mostly
+   mirrors automatically; a small [dir="rtl"] block covers the
+   few exceptions.
+   ============================================================ */
+
+/* ---------- Design tokens ---------- */
+:root {
+  /* Surfaces & text */
+  --surface: #ffffff;
+  --surface-soft: #f6f8fc;
+  --border: #e4e9f1;
+  --border-strong: #cdd7e5;
+  --text: #101f33;
+  --text-soft: #3f5069;
+  --text-muted: #6b7c93;
+
+  /* Brand / interactive */
+  --navy-900: #0d2340;
+  --navy-800: #12345a;
+  --navy-700: #1a4a7a;
+  --primary: #245aa6;
+  --primary-strong: #1c4885;
+  --focus-ring: rgba(36, 90, 166, 0.28);
+
+  /* Risk semantics */
+  --risk-low: #1c8a4b;
+  --risk-low-bg: #eaf7ef;
+  --risk-med: #b06a10;
+  --risk-med-bg: #fdf3e3;
+  --risk-high: #c02d2d;
+  --risk-high-bg: #fdecec;
+
+  /* Radius / shadow */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(13, 35, 64, 0.06);
+  --shadow-md: 0 10px 24px rgba(13, 35, 64, 0.08);
+  --shadow-lg: 0 22px 48px rgba(13, 35, 64, 0.16);
+
+  --content-max: 1400px;
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+  line-height: 1.55;
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 480px at 88% -10%, rgba(36, 90, 166, 0.10), transparent 60%),
+    linear-gradient(180deg, #eef2f8 0%, #e7edf5 100%);
+  background-attachment: fixed;
+}
+
+button {
+  font-family: inherit;
+}
+
+svg {
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ============================================================
+   Top bar
+   ============================================================ */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: linear-gradient(120deg, var(--navy-900) 0%, var(--navy-800) 60%, var(--navy-700) 100%);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(9, 24, 45, 0.22);
+}
+
+.topbar__inner {
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #dbe8ff;
+}
+
+.brand__mark svg {
+  width: 24px;
+  height: 24px;
+}
+
+.brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.brand__title {
+  font-size: 1.28rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.brand__subtitle {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(230, 238, 250, 0.78);
+}
+
+/* Language toggle (segmented) */
+.lang-switch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--r-pill);
+}
+
+.lang-btn {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.95rem;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.lang-btn:hover {
+  color: #fff;
+}
+
+.lang-btn.active {
+  background: #fff;
+  color: var(--navy-800);
+}
+
+.lang-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   Page layout
+   ============================================================ */
+.page {
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  padding: 1.75rem;
+}
+
+.panel__head {
+  margin-bottom: 1.4rem;
+}
+
+.panel__head h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--navy-900);
+}
+
+.panel__desc {
+  margin-top: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* ============================================================
+   Form
+   ============================================================ */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-soft);
+  padding: 1.15rem 1.25rem 1.35rem;
+}
+
+.field-card__title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--navy-800);
+  margin-bottom: 1.05rem;
+}
+
+.field-card__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(36, 90, 166, 0.10);
+  color: var(--primary);
+  flex: 0 0 auto;
+}
+
+.field-card__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+  gap: 1rem 1.15rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.input-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+/* Selects */
+.input-group select,
+.time-picker select {
+  width: 100%;
+  height: 46px;
+  padding-block: 0.55rem;
+  padding-inline: 0.85rem 2.4rem;
+  font-size: 0.95rem;
+  color: var(--text);
+  background-color: #fff;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23627893' stroke-width='1.75' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  background-size: 12px 8px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.input-group select:hover,
+.time-picker select:hover {
+  border-color: #9db4d2;
+}
+
+.input-group select:focus-visible,
+.time-picker select:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+/* Filled-state cue (toggled from JS via .is-selected) */
+.input-group select.is-selected {
+  border-color: #b7c8de;
+  background-color: #fbfdff;
+}
+
+/* Time picker (hour : minute) */
+.time-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  direction: ltr; /* keep HH:MM order in both languages */
+}
+
+.time-picker select {
+  flex: 1 1 0;
+  padding-inline: 0.7rem 2rem;
+}
+
+.time-picker__sep {
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* Predict button */
+.form__actions {
+  margin-top: 0.25rem;
+}
+
+.predict-btn {
+  width: 100%;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.5rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  background: linear-gradient(120deg, var(--navy-800), var(--primary));
+  box-shadow: 0 10px 22px rgba(20, 52, 90, 0.24);
+  transition: transform 0.15s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.predict-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 14px 28px rgba(20, 52, 90, 0.3);
+}
+
+.predict-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.predict-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--focus-ring), 0 10px 22px rgba(20, 52, 90, 0.24);
+}
+
+.predict-btn:disabled {
+  cursor: progress;
+  opacity: 0.85;
+}
+
+.btn-loading {
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.btn-loading::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  display: inline-block;
+  vertical-align: -3px;
+  margin-inline-end: 0.5rem;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   Result panel
+   ============================================================ */
+.result-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: #fbfdff;
+  padding: 1.4rem;
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* Headline: predicted class + risk badge */
+.result-headline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+
+.risk-percentage {
+  font-size: clamp(1.5rem, 4.5vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--navy-900);
+  line-height: 1.1;
+}
+
+.risk-label {
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+}
+
+.risk-badge {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.95rem;
+  border-radius: var(--r-pill);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #eef1f6;
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
+  white-space: nowrap;
+}
+
+/* Risk-level colour variants (JS sets .risk-low/.risk-medium/.risk-high/.risk-error) */
+.risk-badge.risk-low {
+  background: var(--risk-low-bg);
+  color: var(--risk-low);
+  border-color: rgba(28, 138, 75, 0.3);
+}
+
+.risk-badge.risk-medium {
+  background: var(--risk-med-bg);
+  color: var(--risk-med);
+  border-color: rgba(176, 106, 16, 0.3);
+}
+
+.risk-badge.risk-high,
+.risk-badge.risk-error {
+  background: var(--risk-high-bg);
+  color: var(--risk-high);
+  border-color: rgba(192, 45, 45, 0.3);
+}
+
+/* Gauge (needle positioned by JS via left %) */
+.gauge {
+  margin-bottom: 1.4rem;
+  direction: ltr; /* low→high always left→right, matches JS needle position */
+}
+
+.linear-gauge {
+  position: relative;
+  height: 14px;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, #1f9d55 0%, #e2a63b 50%, #d64545 100%);
+  box-shadow: inset 0 1px 3px rgba(13, 35, 64, 0.22);
+  margin-bottom: 0.55rem;
+}
+
+.gauge-indicator {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 4px;
+  height: 24px;
+  border-radius: 3px;
+  background: var(--navy-900);
+  border: 2px solid #fff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 6px rgba(13, 35, 64, 0.4);
+  transition: left 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.gauge-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Probability stat cards */
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-bottom: 1.4rem;
+}
+
+.stat {
+  padding: 0.9rem 1rem;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  text-align: center;
+}
+
+.stat--light {
+  background: var(--risk-low-bg);
+  border-color: rgba(28, 138, 75, 0.22);
+}
+
+.stat--dangerous {
+  background: var(--risk-high-bg);
+  border-color: rgba(192, 45, 45, 0.2);
+}
+
+.stat__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-bottom: 0.3rem;
+}
+
+.stat__value {
+  font-size: clamp(1.5rem, 4vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.stat--light .stat__value {
+  color: var(--risk-low);
+}
+
+.stat--dangerous .stat__value {
+  color: var(--risk-high);
+}
+
+/* Advice + details blocks */
+.result-block {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-soft);
+  padding: 1rem 1.1rem;
+}
+
+.result-block + .result-block {
+  margin-top: 0.85rem;
+}
+
+.result-block h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--navy-800);
+  margin-bottom: 0.55rem;
+}
+
+.result-block__icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: rgba(36, 90, 166, 0.1);
+  color: var(--primary);
+  flex: 0 0 auto;
+}
+
+.result-block__icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.advice-text {
+  color: var(--text-soft);
+  font-size: 0.95rem;
+}
+
+/* Advice block picks up the risk tint (JS themes .result-section) */
+.result-section.risk-theme-low .advice-section {
+  background: var(--risk-low-bg);
+  border-color: rgba(28, 138, 75, 0.25);
+}
+
+.result-section.risk-theme-medium .advice-section {
+  background: var(--risk-med-bg);
+  border-color: rgba(176, 106, 16, 0.25);
+}
+
+.result-section.risk-theme-high .advice-section {
+  background: var(--risk-high-bg);
+  border-color: rgba(192, 45, 45, 0.22);
+}
+
+/* Prediction details (rendered by JS inside #explain) */
+.breakdown-text .risk-factors-title {
+  display: none; /* redundant with the block heading above */
+}
+
+.risk-factors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.risk-factor-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+}
+
+.factor-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.factor-value {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: end;
+}
+
+.factor-impact {
+  min-width: 3.1rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--r-sm);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.factor-impact.positive {
+  background: var(--risk-low-bg);
+  color: var(--risk-low);
+}
+
+.factor-impact.negative {
+  background: var(--risk-high-bg);
+  color: var(--risk-high);
+}
+
+/* Error / alert */
+/* Keep the alert hidden until JS reveals it. The global .hidden utility is defined
+   earlier in the file, so without this override .error-message's display would win
+   and show a false error box on first page load. JS still toggles it via inline
+   style.display, which overrides this rule when a real error occurs. */
+.error-message.hidden {
+  display: none;
+}
+
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-top: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: var(--r-md);
+  background: var(--risk-high-bg);
+  border: 1px solid rgba(192, 45, 45, 0.3);
+  color: #8f2020;
+}
+
+.error-message__icon {
+  flex: 0 0 auto;
+  color: var(--risk-high);
+}
+
+.error-message__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.error-message__body h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.error-message__body p {
+  font-size: 0.9rem;
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.site-footer {
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ============================================================
+   Entrance animation
+   ============================================================ */
+.panel,
+.field-card {
+  animation: rise 0.4s ease both;
+}
+
+.field-card:nth-of-type(2) { animation-delay: 0.05s; }
+.field-card:nth-of-type(3) { animation-delay: 0.1s; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 1.62fr) minmax(360px, 1fr);
+    gap: 2rem;
+  }
+
+  .panel {
+    padding: 2rem;
+  }
+
+  .result-section {
+    position: sticky;
+    top: 88px;
+  }
+}
+
+@media (max-width: 620px) {
+  .topbar__inner {
+    padding: 0.7rem 1rem;
+  }
+
+  .brand__subtitle {
+    display: none;
+  }
+
+  .page {
+    padding: 1.25rem 1rem 2.25rem;
+  }
+
+  .panel {
+    padding: 1.25rem;
+    border-radius: var(--r-md);
+  }
+
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .result-headline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+
+/* ============================================================
+   RTL (Hebrew) — logical properties handle most of it;
+   these cover the few physical exceptions.
+   ============================================================ */
+[dir="rtl"] .input-group select {
+  background-position: left 0.9rem center;
+}
+
+/* The time picker stays LTR (to keep HH:MM order), so its value is left-aligned.
+   Keep the arrow on the RIGHT — away from the value — in RTL too; otherwise the
+   arrow sits on top of the "10"/"30" text. */
+[dir="rtl"] .time-picker select {
+  background-position: right 0.9rem center;
+  padding-inline: 0.7rem 2.2rem;
+}
+
+[dir="rtl"] .factor-value {
+  text-align: start;
+}
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

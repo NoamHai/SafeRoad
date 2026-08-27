@@ -1,0 +1,4 @@
+model_name,accuracy,f1_macro
+SMOTENC + Random Forest + class_weight='balanced',0.755437626130503,0.45816515737820573
+Baseline Random Forest,0.8090290754166978,0.43545689902498935
+Random Forest + class_weight='balanced',0.8101502354436056,0.4311604088955203

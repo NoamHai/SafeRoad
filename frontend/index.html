@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Safe Roads – machine-learning accident risk assessment." />
+  <meta name="theme-color" content="#0f2c4d" />
+  <title>Safe Roads - Accident Risk Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=4" />
+</head>
+<body>
+  <!-- ============ Top bar ============ -->
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3l7 3v5c0 4.6-3 7.8-7 9-4-1.2-7-4.4-7-9V6l7-3Z" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+        </span>
+        <span class="brand__text">
+          <span class="brand__title" data-i18n="title">Safe Roads</span>
+          <span class="brand__subtitle" data-i18n="subtitle">Real-time Accident Risk Assessment</span>
+        </span>
+      </div>
+
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" class="lang-btn active" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="he">עברית</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="layout">
+
+      <!-- ============ Input panel ============ -->
+      <section class="panel form-panel" aria-labelledby="form-heading">
+        <div class="panel__head">
+          <h2 id="form-heading" data-i18n="driving_conditions">Driving Conditions</h2>
+          <p class="panel__desc" data-i18n="select_conditions">Select your current driving conditions to get an instant risk assessment.</p>
+        </div>
+
+        <form class="form" novalidate>
+          <!-- Group 1: Time & Location -->
+          <section class="field-card" aria-labelledby="grp-time">
+            <h3 class="field-card__title" id="grp-time">
+              <span class="field-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" />
+                </svg>
+              </span>
+              <span data-i18n="section_time_location">Time &amp; Location</span>
+            </h3>
+            <div class="field-grid">
+              <div class="input-group input-group--time">
+                <label data-i18n="label_SHAA">Time</label>
+                <div class="time-picker" aria-label="Time picker">
+                  <select id="SHAA_HOUR" aria-label="Hour"></select>
+                  <span class="time-picker__sep" aria-hidden="true">:</span>
+                  <select id="SHAA_MINUTE" aria-label="Minutes"></select>
+                </div>
+              </div>
+              <div class="input-group">
+                <label for="HODESH_TEUNA" data-i18n="label_HODESH_TEUNA">Month</label>
+                <select id="HODESH_TEUNA"></select>
+              </div>
+              <div class="input-group">
+                <label for="YOM_BASHAVUA" data-i18n="label_YOM_BASHAVUA">Day of Week</label>
+                <select id="YOM_BASHAVUA"></select>
+              </div>
+              <div class="input-group">
+                <label for="ZURAT_ISHUV" data-i18n="label_ZURAT_ISHUV">Settlement Form</label>
+                <select id="ZURAT_ISHUV"></select>
+              </div>
+              <div class="input-group">
+                <label for="NAFA" data-i18n="label_NAFA">District</label>
+                <select id="NAFA"></select>
+              </div>
+              <div class="input-group">
+                <label for="YOM_LAYLA" data-i18n="label_YOM_LAYLA">Day / Night</label>
+                <select id="YOM_LAYLA"></select>
+              </div>
+            </div>
+          </section>
+
+          <!-- Group 2: Road Conditions -->
+          <section class="field-card" aria-labelledby="grp-road">
+            <h3 class="field-card__title" id="grp-road">
+              <span class="field-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 21 9 3M18 21 15 3" /><path d="M12 5v3M12 11v3M12 18v2" />
+                </svg>
+              </span>
+              <span data-i18n="section_road_conditions">Road Conditions</span>
+            </h3>
+            <div class="field-grid">
+              <div class="input-group">
+                <label for="ROAD_STRUCTURE" data-i18n="label_ROAD_STRUCTURE">Road Structure</label>
+                <select id="ROAD_STRUCTURE"></select>
+              </div>
+              <div class="input-group">
+                <label for="ROHAV" data-i18n="label_ROHAV">Road Width</label>
+                <select id="ROHAV"></select>
+              </div>
+              <div class="input-group">
+                <label for="MEHIRUT_MUTERET" data-i18n="label_MEHIRUT_MUTERET">Speed Limit</label>
+                <select id="MEHIRUT_MUTERET"></select>
+              </div>
+              <div class="input-group">
+                <label for="TEURA" data-i18n="label_TEURA">Lighting</label>
+                <select id="TEURA"></select>
+              </div>
+              <div class="input-group">
+                <label for="SUG_DEREH" data-i18n="label_SUG_DEREH">Road Type</label>
+                <select id="SUG_DEREH"></select>
+              </div>
+              <div class="input-group">
+                <label for="PNE_KVISH" data-i18n="label_PNE_KVISH">Road Surface</label>
+                <select id="PNE_KVISH"></select>
+              </div>
+              <div class="input-group">
+                <label for="TKINUT" data-i18n="label_TKINUT">Road Condition</label>
+                <select id="TKINUT"></select>
+              </div>
+              <div class="input-group">
+                <label for="MEZEG_AVIR" data-i18n="label_MEZEG_AVIR">Weather</label>
+                <select id="MEZEG_AVIR"></select>
+              </div>
+            </div>
+          </section>
+
+          <!-- Group 3: Environment & Visibility -->
+          <section class="field-card" aria-labelledby="grp-env">
+            <h3 class="field-card__title" id="grp-env">
+              <span class="field-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.4A3.5 3.5 0 0 1 17.5 18H7Z" />
+                </svg>
+              </span>
+              <span data-i18n="section_accident_details">Environment &amp; Visibility</span>
+            </h3>
+            <div class="field-grid">
+              <div class="input-group">
+                <label for="SUG_TEUNA" data-i18n="label_SUG_TEUNA">Accident Type</label>
+                <select id="SUG_TEUNA"></select>
+              </div>
+              <div class="input-group">
+                <label for="SIMUN_TIMRUR" data-i18n="label_SIMUN_TIMRUR">Traffic Marking</label>
+                <select id="SIMUN_TIMRUR"></select>
+              </div>
+            </div>
+          </section>
+
+          <div class="form__actions">
+            <button id="btn" type="button" class="predict-btn">
+              <span class="btn-text" data-i18n="predict_risk">Predict Risk</span>
+              <span class="btn-loading hidden" data-i18n="analyzing">Analyzing...</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ============ Result panel ============ -->
+      <aside class="panel result-section" aria-labelledby="result-heading">
+        <div class="panel__head">
+          <h2 id="result-heading" data-i18n="risk_assessment">Risk Assessment</h2>
+        </div>
+
+        <div class="result-card" id="resultCard" aria-live="polite">
+          <div class="result-headline">
+            <div class="result-headline__main">
+              <div class="risk-percentage" id="riskText">—</div>
+              <div class="risk-label" data-i18n="risk_level">Prediction</div>
+            </div>
+            <span class="risk-badge" id="riskBadge" data-i18n="ready">Ready</span>
+          </div>
+
+          <div class="gauge">
+            <div class="linear-gauge">
+              <span class="gauge-indicator" id="gaugeNeedle"></span>
+            </div>
+            <div class="gauge-scale">
+              <span data-i18n="low_risk">Low Risk</span>
+              <span data-i18n="medium_risk_label">Medium Risk</span>
+              <span data-i18n="high_risk">High Risk</span>
+            </div>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat stat--light">
+              <div class="stat__label" data-i18n="light_accident">Light Accident</div>
+              <div class="stat__value" id="lightProb">—%</div>
+            </div>
+            <div class="stat stat--dangerous">
+              <div class="stat__label" data-i18n="dangerous_accident">Dangerous Accident</div>
+              <div class="stat__value" id="dangerousProb">—%</div>
+            </div>
+          </div>
+
+          <div class="result-block advice-section">
+            <h3>
+              <span class="result-block__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10c.8.8 1 1.4 1 2h6c0-.6.2-1.2 1-2a6 6 0 0 0-4-10Z" />
+                </svg>
+              </span>
+              <span data-i18n="recommendation">Recommendation</span>
+            </h3>
+            <p id="advice" class="advice-text">Select your driving conditions and click "Predict Risk" to get personalized safety recommendations.</p>
+          </div>
+
+          <div class="result-block breakdown-section">
+            <h3><span data-i18n="risk_factors">Prediction Details</span></h3>
+            <div id="explain" class="breakdown-text"></div>
+          </div>
+        </div>
+
+        <div class="error-message hidden" id="errorText" role="alert">
+          <span class="error-message__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3 2 20h20L12 3Z" /><path d="M12 10v4" /><path d="M12 17.5h.01" />
+            </svg>
+          </span>
+          <div class="error-message__body">
+            <h3 data-i18n="unable_calculate">Unable to Calculate Risk</h3>
+            <p data-i18n="check_connection">Please check your connection and try again.</p>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p><span data-i18n="title">Safe Roads</span> · <span data-i18n="footer_note">Educational demonstration – not a substitute for official road-safety guidance.</span></p>
+  </footer>
+
+  <script src="script.js?v=4"></script>
+</body>
+</html>

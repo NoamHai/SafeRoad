@@ -1,0 +1,120 @@
+LOG_PATH: runs/run_20260515_215009.txt
+INPUT_FILE: accidents_full_copy.xlsx
+TARGET_COL: HUMRAT_TEUNA
+RANDOM_STATE: 42
+
+Samples: 66892
+Features: 16
+Target distribution:
+ HUMRAT_TEUNA
+3    52126
+2    12881
+1     1885
+Name: count, dtype: int64
+
+Train: (40134, 16) Val: (13379, 16) Test: (13379, 16)
+Train distribution:
+ HUMRAT_TEUNA
+3    0.779240
+2    0.192580
+1    0.028181
+Name: proportion, dtype: float64
+Val distribution:
+ HUMRAT_TEUNA
+3    0.779281
+2    0.192541
+1    0.028178
+Name: proportion, dtype: float64
+Test distribution:
+ HUMRAT_TEUNA
+3    0.779281
+2    0.192541
+1    0.028178
+Name: proportion, dtype: float64
+
+=== LogisticRegression - VAL ===
+used_sample_weight: True
+VAL Balanced Accuracy: 0.5532251301591539
+VAL F1 macro: 0.42387074494789295
+VAL F1 weighted: 0.6575185973194435
+              precision    recall  f1-score   support
+
+           1       0.07      0.62      0.13       377
+           2       0.40      0.41      0.40      2576
+           3       0.88      0.64      0.74     10426
+
+    accuracy                           0.59     13379
+   macro avg       0.45      0.55      0.42     13379
+weighted avg       0.77      0.59      0.66     13379
+
+Confusion matrix:
+ [[ 232   57   88]
+ [ 729 1051  796]
+ [2266 1526 6634]]
+
+=== RandomForest - VAL ===
+used_sample_weight: True
+VAL Balanced Accuracy: 0.4054416152957749
+VAL F1 macro: 0.4162222259595925
+VAL F1 weighted: 0.7607930891628004
+              precision    recall  f1-score   support
+
+           1       0.20      0.00      0.01       377
+           2       0.72      0.24      0.36      2576
+           3       0.81      0.98      0.89     10426
+
+    accuracy                           0.81     13379
+   macro avg       0.58      0.41      0.42     13379
+weighted avg       0.78      0.81      0.76     13379
+
+Confusion matrix:
+ [[    1     9   367]
+ [    2   607  1967]
+ [    2   227 10197]]
+
+=== HistGradientBoosting - VAL ===
+used_sample_weight: True
+VAL Balanced Accuracy: 0.5704457638682235
+VAL F1 macro: 0.45171674467433337
+VAL F1 weighted: 0.6970210396151465
+              precision    recall  f1-score   support
+
+           1       0.09      0.60      0.15       377
+           2       0.44      0.39      0.42      2576
+           3       0.88      0.71      0.79     10426
+
+    accuracy                           0.65     13379
+   macro avg       0.47      0.57      0.45     13379
+weighted avg       0.77      0.65      0.70     13379
+
+Confusion matrix:
+ [[ 228   42  107]
+ [ 622 1014  940]
+ [1740 1253 7433]]
+
+=== LogisticRegression - CV on TRAIN ===
+CV Balanced Acc: 0.5491288493912634
+CV F1 macro: 0.422617657392869
+CV F1 weighted: 0.6570776033671105
+
+=== RandomForest - CV on TRAIN ===
+CV Balanced Acc: 0.4098810211913582
+CV F1 macro: 0.42458824790681043
+CV F1 weighted: 0.762256095833038
+
+=== HistGradientBoosting - CV on TRAIN ===
+CV Balanced Acc: 0.41806500569396593
+CV F1 macro: 0.43730623828520515
+CV F1 weighted: 0.7667884040089652
+
+=== SUMMARY (sorted by VAL F1 macro) ===
+                  model  used_sample_weight  val_bal_acc  ...  cv_bal_acc  cv_f1_macro  cv_f1_weighted
+2  HistGradientBoosting                True     0.570446  ...    0.418065     0.437306        0.766788
+0    LogisticRegression                True     0.553225  ...    0.549129     0.422618        0.657078
+1          RandomForest                True     0.405442  ...    0.409881     0.424588        0.762256
+
+[3 rows x 8 columns]
+
+Saved summary to: runs/summary_20260515_215009.csv
+
+Final model trained on TrainVal: HistGradientBoosting

@@ -1,0 +1,45 @@
+{
+    "model_type": "HistGradientBoostingClassifier",
+    "target_column": "TARGET_BINARY",
+    "target_meaning": {
+        "0": "Light accident",
+        "1": "Dangerous accident"
+    },
+    "features": [
+        "SHAA",
+        "HODESH_TEUNA",
+        "YOM_BASHAVUA",
+        "SUG_TEUNA",
+        "ROAD_STRUCTURE",
+        "ROHAV",
+        "NAFA",
+        "ZURAT_ISHUV",
+        "MEHIRUT_MUTERET",
+        "TEURA",
+        "SUG_DEREH",
+        "SIMUN_TIMRUR",
+        "TKINUT",
+        "PNE_KVISH",
+        "MEZEG_AVIR",
+        "YOM_LAYLA"
+    ],
+    "road_structure_values": [
+        "HAD_1",
+        "HAD_2",
+        "HAD_3",
+        "RAV_1",
+        "RAV_2",
+        "RAV_3",
+        "RAV_4",
+        "OTHER"
+    ],
+    "random_state": 42,
+    "metrics": {
+        "accuracy": 0.7309215935421183,
+        "balanced_accuracy": 0.6879094008706905,
+        "f1_binary": 0.5005549389567148,
+        "f1_macro": 0.6582058582251604,
+        "precision_dangerous": 0.42397179788484135,
+        "recall_dangerous": 0.6109041652556721
+    }
+}

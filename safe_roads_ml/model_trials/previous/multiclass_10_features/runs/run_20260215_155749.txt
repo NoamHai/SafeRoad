@@ -1,0 +1,117 @@
+LOG_PATH: runs/run_20260215_155749.txt
+INPUT_FILE: accidents_10_feat.xlsx
+TARGET_COL: HUMRAT_TEUNA
+
+=== LogisticRegression (baseline) - VAL ===
+VAL Balanced Accuracy: 0.5329267923038836
+VAL F1 macro: 0.4044179915863721
+VAL F1 weighted: 0.6327087789633145
+              precision    recall  f1-score   support
+
+           1       0.07      0.62      0.12       377
+           2       0.39      0.37      0.38      2576
+           3       0.86      0.61      0.71     10426
+
+    accuracy                           0.56     13379
+   macro avg       0.44      0.53      0.40     13379
+weighted avg       0.75      0.56      0.63     13379
+
+Confusion matrix:
+ [[ 233   30  114]
+ [ 695  955  926]
+ [2609 1457 6360]]
+
+=== RandomForest (baseline) - VAL ===
+VAL Balanced Accuracy: 0.39808686353844264
+VAL F1 macro: 0.40586072753728936
+VAL F1 weighted: 0.750426781618611
+              precision    recall  f1-score   support
+
+           1       0.05      0.00      0.01       377
+           2       0.62      0.23      0.33      2576
+           3       0.81      0.96      0.88     10426
+
+    accuracy                           0.80     13379
+   macro avg       0.49      0.40      0.41     13379
+weighted avg       0.75      0.80      0.75     13379
+
+Confusion matrix:
+ [[    1    13   363]
+ [    3   585  1988]
+ [   17   353 10056]]
+
+=== HistGradientBoosting (baseline) - VAL ===
+VAL Balanced Accuracy: 0.3999398616372393
+VAL F1 macro: 0.4088427638650076
+VAL F1 weighted: 0.7556585751931651
+              precision    recall  f1-score   support
+
+           1       0.20      0.00      0.01       377
+           2       0.71      0.22      0.33      2576
+           3       0.81      0.98      0.89     10426
+
+    accuracy                           0.80     13379
+   macro avg       0.57      0.40      0.41     13379
+weighted avg       0.77      0.80      0.76     13379
+
+Confusion matrix:
+ [[    1     6   370]
+ [    3   563  2010]
+ [    1   222 10203]]
+
+=== LogisticRegression (baseline) - CV on TRAIN ===
+CV Balanced Acc: 0.5159873116581932
+CV F1 macro: 0.40051095751637095
+CV F1 weighted: 0.6312636562288452
+
+=== RandomForest (baseline) - CV on TRAIN ===
+CV Balanced Acc: 0.39746776416389523
+CV F1 macro: 0.4050803203749956
+CV F1 weighted: 0.750015665449777
+
+=== HistGradientBoosting (baseline) - CV on TRAIN ===
+CV Balanced Acc: 0.39916192398474837
+CV F1 macro: 0.407864152560788
+CV F1 weighted: 0.754968526133674
+
+=== GridSearch (Logistic Regression) Results ===
+Best params: {'model__C': 0.01}
+Best CV f1_macro: 0.40115162948462774
+
+=== LogisticRegression (tuned) - VAL ===
+VAL Balanced Accuracy: 0.5368870177692388
+VAL F1 macro: 0.40487959991891004
+VAL F1 weighted: 0.6338000968082205
+              precision    recall  f1-score   support
+
+           1       0.07      0.64      0.12       377
+           2       0.40      0.36      0.38      2576
+           3       0.86      0.61      0.72     10426
+
+    accuracy                           0.56     13379
+   macro avg       0.44      0.54      0.40     13379
+weighted avg       0.75      0.56      0.63     13379
+
+Confusion matrix:
+ [[ 241   34  102]
+ [ 712  926  938]
+ [2714 1332 6380]]
+
+=== LogisticRegression (tuned) - CV on TRAIN ===
+CV Balanced Acc: 0.5199784623286317
+CV F1 macro: 0.40115162948462774
+CV F1 weighted: 0.6343718735597303
+
+=== SUMMARY (sorted by VAL F1 macro) ===
+                             model  val_bal_acc  ...         best_params  best_cv_search_f1_macro
+2  HistGradientBoosting (baseline)     0.399940  ...                 NaN                      NaN
+1          RandomForest (baseline)     0.398087  ...                 NaN                      NaN
+3       LogisticRegression (tuned)     0.536887  ...  {'model__C': 0.01}                 0.401152
+0    LogisticRegression (baseline)     0.532927  ...                 NaN                      NaN
+
+[4 rows x 9 columns]
+
+Saved summary to: runs/summary_20260215_155749.csv
+
+Final model trained on TrainVal (no TEST run in this script).
+Final model: LogisticRegression (tuned)

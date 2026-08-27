@@ -1,0 +1,165 @@
+LOG_PATH: runs/run_binary_16features_top16_20260326_182401.txt
+INPUT_FILE: accidents_full_copy.xlsx
+TARGET_COL: HUMRAT_TEUNA
+BINARY_TARGET_COL: TARGET_BINARY
+FEATURE_SET_NAME: top16
+FEATURE_COUNT: 16
+SELECTED_FEATURES: ['SHAA', 'HODESH_TEUNA', 'YOM_BASHAVUA', 'SUG_TEUNA', 'ROAD_STRUCTURE', 'ROHAV', 'NAFA', 'ZURAT_ISHUV', 'MEHIRUT_MUTERET', 'TEURA', 'SUG_DEREH', 'SIMUN_TIMRUR', 'TKINUT', 'PNE_KVISH', 'MEZEG_AVIR', 'YOM_LAYLA']
+
+Samples: 66892
+Features used: 16
+Binary target distribution:
+TARGET_BINARY
+0    52126
+1    14766
+Name: count, dtype: int64
+TARGET_BINARY
+0    0.7793
+1    0.2207
+Name: proportion, dtype: float64
+
+Train: (40134, 16) Val: (13379, 16) Test: (13379, 16)
+Train distribution:
+ TARGET_BINARY
+0    0.7792
+1    0.2208
+Name: proportion, dtype: float64
+Val distribution:
+ TARGET_BINARY
+0    0.7793
+1    0.2207
+Name: proportion, dtype: float64
+Test distribution:
+ TARGET_BINARY
+0    0.7793
+1    0.2207
+Name: proportion, dtype: float64
+
+=== LogisticRegression - VAL ===
+used_sample_weight: True
+VAL Accuracy: 0.6985574407653786
+VAL Balanced Accuracy: 0.6767316288195346
+VAL F1 binary (class 1 = dangerous): 0.48288242082318245
+VAL F1 macro: 0.6350801154171295
+VAL Precision (class 1): 0.3885678910441601
+VAL Recall (class 1): 0.6376566203860481
+
+Classification report:
+               precision    recall  f1-score   support
+
+    Light (0)     0.8746    0.7158    0.7873     10426
+Dangerous (1)     0.3886    0.6377    0.4829      2953
+
+     accuracy                         0.6986     13379
+    macro avg     0.6316    0.6767    0.6351     13379
+ weighted avg     0.7673    0.6986    0.7201     13379
+
+Confusion matrix:
+ [[7463 2963]
+ [1070 1883]]
+
+=== RandomForest - VAL ===
+used_sample_weight: True
+VAL Accuracy: 0.8081321473951716
+VAL Balanced Accuracy: 0.6039504770336006
+VAL F1 binary (class 1 = dangerous): 0.35421383647798743
+VAL F1 macro: 0.6207710537786505
+VAL Precision (class 1): 0.6888454011741683
+VAL Recall (class 1): 0.23840162546562818
+
+Classification report:
+               precision    recall  f1-score   support
+
+    Light (0)     0.8180    0.9695    0.8873     10426
+Dangerous (1)     0.6888    0.2384    0.3542      2953
+
+     accuracy                         0.8081     13379
+    macro avg     0.7534    0.6040    0.6208     13379
+ weighted avg     0.7895    0.8081    0.7697     13379
+
+Confusion matrix:
+ [[10108   318]
+ [ 2249   704]]
+
+=== HistGradientBoosting - VAL ===
+used_sample_weight: True
+VAL Accuracy: 0.7323417295762015
+VAL Balanced Accuracy: 0.6893060336732734
+VAL F1 binary (class 1 = dangerous): 0.5024315687091844
+VAL F1 macro: 0.6596816092101722
+VAL Precision (class 1): 0.42601319509896324
+VAL Recall (class 1): 0.6122587199458178
+
+Classification report:
+               precision    recall  f1-score   support
+
+    Light (0)     0.8747    0.7664    0.8169     10426
+Dangerous (1)     0.4260    0.6123    0.5024      2953
+
+     accuracy                         0.7323     13379
+    macro avg     0.6503    0.6893    0.6597     13379
+ weighted avg     0.7756    0.7323    0.7475     13379
+
+Confusion matrix:
+ [[7990 2436]
+ [1145 1808]]
+
+=== LogisticRegression - CV on TRAIN ===
+CV Accuracy: 0.6964170140825797
+CV Balanced Acc: 0.6729482193675794
+CV F1 binary: 0.47851187484989977
+CV F1 macro: 0.6321911714816472
+CV Precision (class 1): 0.3854534086741254
+CV Recall (class 1): 0.6309255079006771
+
+=== RandomForest - CV on TRAIN ===
+CV Accuracy: 0.8110578330653357
+CV Balanced Acc: 0.6108932635578886
+CV F1 binary: 0.37091198283894206
+CV F1 macro: 0.6298712870858643
+CV Precision (class 1): 0.7000385748509685
+CV Recall (class 1): 0.2524830699774266
+
+=== HistGradientBoosting - CV on TRAIN ===
+CV Accuracy: 0.8156923162795537
+CV Balanced Acc: 0.6149185855143899
+CV F1 binary: 0.3795513915167391
+CV F1 macro: 0.6356606197751592
+CV Precision (class 1): 0.7389245429192333
+CV Recall (class 1): 0.2554176072234763
+
+=== SUMMARY (sorted by VAL F1 binary) ===
+                  model  used_sample_weight   val_acc  ...  cv_f1_macro  cv_precision_pos  cv_recall_pos
+2  HistGradientBoosting                True  0.732342  ...     0.635661          0.738925       0.255418
+0    LogisticRegression                True  0.698557  ...     0.632191          0.385453       0.630926
+1          RandomForest                True  0.808132  ...     0.629871          0.700039       0.252483
+
+[3 rows x 14 columns]
+
+Saved summary to: runs/summary_binary_16features_top16_20260326_182401.csv
+
+Final model trained on TrainVal: HistGradientBoosting
+
+=== HistGradientBoosting - TEST ===
+TEST Accuracy: 0.7309215935421183
+TEST Balanced Accuracy: 0.6879094008706905
+TEST F1 binary (class 1 = dangerous): 0.5005549389567148
+TEST F1 macro: 0.6582058582251604
+TEST Precision (class 1): 0.42397179788484135
+TEST Recall (class 1): 0.6109041652556721
+
+Classification report:
+               precision    recall  f1-score   support
+
+    Light (0)     0.8741    0.7649    0.8159     10426
+Dangerous (1)     0.4240    0.6109    0.5006      2953
+
+     accuracy                         0.7309     13379
+    macro avg     0.6490    0.6879    0.6582     13379
+ weighted avg     0.7747    0.7309    0.7463     13379
+
+Confusion matrix:
+ [[7975 2451]
+ [1149 1804]]
+
+Saved test results to: runs/test_results_binary_16features_top16_20260326_182401.csv

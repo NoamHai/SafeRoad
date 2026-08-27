@@ -1,0 +1,38 @@
+
+=== LogisticRegression (baseline) - VAL ===
+VAL Balanced Accuracy: 0.5329267923038836
+VAL F1 macro: 0.4044179915863721
+VAL F1 weighted: 0.6327087789633145
+              precision    recall  f1-score   support
+
+           1       0.07      0.62      0.12       377
+           2       0.39      0.37      0.38      2576
+           3       0.86      0.61      0.71     10426
+
+    accuracy                           0.56     13379
+   macro avg       0.44      0.53      0.40     13379
+weighted avg       0.75      0.56      0.63     13379
+
+Confusion matrix:
+ [[ 233   30  114]
+ [ 695  955  926]
+ [2609 1457 6360]]
+
+=== RandomForest (baseline) - VAL ===
+VAL Balanced Accuracy: 0.4003304895742094
+VAL F1 macro: 0.40934709808487374
+VAL F1 weighted: 0.7518906307368958
+              precision    recall  f1-score   support
+
+           1       0.08      0.01      0.01       377
+           2       0.62      0.23      0.34      2576
+           3       0.81      0.96      0.88     10426
+
+    accuracy                           0.80     13379
+   macro avg       0.50      0.40      0.41     13379
+weighted avg       0.75      0.80      0.75     13379
+
+Confusion matrix:
+ [[    2    14   361]
+ [    4   596  1976]
+ [   19   353 10054]]

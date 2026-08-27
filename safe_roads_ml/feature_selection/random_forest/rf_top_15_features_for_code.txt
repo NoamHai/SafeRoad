@@ -1,0 +1,17 @@
+SELECTED_FEATURES = [
+    "SHAA",
+    "HODESH_TEUNA",
+    "SUG_TEUNA",
+    "YOM_BASHAVUA",
+    "ROAD_STRUCTURE",
+    "EZOR_TIVI",
+    "ROHAV",
+    "NAFA",
+    "ZURAT_ISHUV",
+    "MEHIRUT_MUTERET",
+    "TEURA",
+    "MAHOZ",
+    "SUG_DEREH",
+    "SIMUN_TIMRUR",
+    "MEKOM_HAZIYA",
+]

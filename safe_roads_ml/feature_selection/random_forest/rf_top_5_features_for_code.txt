@@ -1,0 +1,7 @@
+SELECTED_FEATURES = [
+    "SHAA",
+    "HODESH_TEUNA",
+    "SUG_TEUNA",
+    "YOM_BASHAVUA",
+    "ROAD_STRUCTURE",
+]
