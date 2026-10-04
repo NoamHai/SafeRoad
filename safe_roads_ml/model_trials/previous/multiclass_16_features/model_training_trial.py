@@ -1,8 +1,8 @@
 # ------------------------------------------------------------
-# 3-model trial on top-16 features
+# Historical multiclass comparison on 16 features
 # ------------------------------------------------------------
-# יצירת קובץ אחד להרצה: Logistic Regression, Random Forest, HistGradientBoosting
-# עם one-hot לכל התכונות, טיפול בקטגוריות נדירות
+# Compare Logistic Regression, Random Forest, and HistGradientBoosting.
+# One-hot encode all features and group rare categories.
 # ------------------------------------------------------------
 
 import builtins
@@ -30,7 +30,7 @@ from sklearn.utils.class_weight import compute_sample_weight
 from typing import Any
 
 # ------------------------------------------------------------
-# --- logging setup: writes all prints to a file as well ---
+# --- logging setup: writes experiment prints to the log file ---
 # ------------------------------------------------------------
 os.makedirs("runs", exist_ok=True)
 stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -46,7 +46,7 @@ def print(*args: Any, **kwargs: Any) -> None:
 # --- config ---
 # ------------------------------------------------------------
 INPUT_FILE = "accidents_full_copy.xlsx"
-TARGET_COL = "HUMRAT_TEUNA"         
+TARGET_COL = "HUMRAT_TEUNA"
 RANDOM_STATE = 42
 
 print("LOG_PATH:", LOG_PATH)
@@ -119,7 +119,6 @@ ord_cols = []  # none, since all treated as categorical in this run
 
 # imputing + one-hot for all categorical
 # handle_unknown='infrequent_if_exist' + min_frequency avoids explosion of dummy columns
-# see scikit-learn docs: handle_unknown options include infrequent_if_exist for rare categories. :contentReference[oaicite:0]{index=0}
 cat_transformer = Pipeline(steps=[
     ("imputer", SimpleImputer(strategy="most_frequent")),
     ("onehot", OneHotEncoder(
@@ -180,7 +179,11 @@ models = {
 # ------------------------------------------------------------
 # --- helper functions ---
 # ------------------------------------------------------------
-def fit_with_optional_sample_weight(pipeline_model: Pipeline, X_fit: pd.DataFrame, y_fit: pd.Series) -> bool:
+def fit_with_optional_sample_weight(
+    pipeline_model: Pipeline,
+    X_fit: pd.DataFrame,
+    y_fit: pd.Series,
+) -> bool:
     """
     Try to fit with sample_weight if the model supports it,
     otherwise fit without it.
@@ -279,10 +282,9 @@ res_df.to_csv(summary_csv, index=False)
 print("\nSaved summary to:", summary_csv)
 
 # ------------------------------------------------------------
-# --- 4) Optional: train final chosen model on TrainVal ---
+# --- 4) Train the selected model on TrainVal ---
 # ------------------------------------------------------------
-# ניתן לבחור כאן את המודל עם הביצועים הטובים ביותר (לדוגמא לפי F1_macro),
-# ואז לאמן אותו על TrainVal מלא ולשמור אותו, אבל כרגע רק לדוגמה:
+# Select by validation F1 macro; this experiment does not save a model.
 best_model_name = res_df.iloc[0]["model"]
 final_model = models[best_model_name]
 

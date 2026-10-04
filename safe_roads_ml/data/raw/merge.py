@@ -1,3 +1,5 @@
+# Merge the yearly CSV files in chronological order.
+
 import pandas as pd
 
 files = [

@@ -62,11 +62,8 @@ N_SPLITS_CV = 5   # reduce to 3 if runtime is too long
 # ------------------------------------------------------------
 # --- feature sets to test ---
 # ------------------------------------------------------------
-# Replace these example lists with your real lists.
-# Important:
-# - Use ROAD_STRUCTURE instead of HAD_MASLUL / RAV_MASLUL
-# - Do not include TARGET columns here
-FEATURE_SETS = {    
+# This experiment uses the ordered top-16 list with combined ROAD_STRUCTURE.
+FEATURE_SETS = {
     "top16": [
         "SHAA",
         "HODESH_TEUNA",
@@ -81,7 +78,7 @@ FEATURE_SETS = {
         "SUG_DEREH",
         "SIMUN_TIMRUR",
         "TKINUT",
-        "PNE_KVISH",  
+        "PNE_KVISH",
         "MEZEG_AVIR",
         "YOM_LAYLA"
     ]
@@ -178,7 +175,11 @@ def load_and_prepare_base_df() -> pd.DataFrame:
 # ------------------------------------------------------------
 # --- helper: fit with optional sample_weight ---
 # ------------------------------------------------------------
-def fit_with_optional_sample_weight(pipeline_model: Pipeline, X_fit: pd.DataFrame, y_fit: pd.Series) -> bool:
+def fit_with_optional_sample_weight(
+    pipeline_model: Pipeline,
+    X_fit: pd.DataFrame,
+    y_fit: pd.Series,
+) -> bool:
     sw = compute_sample_weight(class_weight="balanced", y=y_fit)
 
     try:
@@ -264,7 +265,15 @@ def build_models(cat_cols: list[str]) -> dict[str, Pipeline]:
 # ------------------------------------------------------------
 # --- helper: evaluation on validation set ---
 # ------------------------------------------------------------
-def eval_on_val(model: Pipeline, name: str, X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, y_val: pd.Series, print_fn: Callable[..., None]) -> dict:
+def eval_on_val(
+    model: Pipeline,
+    name: str,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_val: pd.DataFrame,
+    y_val: pd.Series,
+    print_fn: Callable[..., None],
+) -> dict:
     used_sw = fit_with_optional_sample_weight(model, X_train, y_train)
     pred = model.predict(X_val)
 
@@ -307,7 +316,13 @@ def eval_on_val(model: Pipeline, name: str, X_train: pd.DataFrame, y_train: pd.S
 # ------------------------------------------------------------
 # --- helper: cross-validation on train set ---
 # ------------------------------------------------------------
-def cv_on_train(model: Pipeline, name: str, X_train: pd.DataFrame, y_train: pd.Series, print_fn: Callable[..., None]) -> dict:
+def cv_on_train(
+    model: Pipeline,
+    name: str,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    print_fn: Callable[..., None],
+) -> dict:
     cv = StratifiedKFold(n_splits=N_SPLITS_CV, shuffle=True, random_state=RANDOM_STATE)
 
     scoring = {
@@ -344,7 +359,13 @@ def cv_on_train(model: Pipeline, name: str, X_train: pd.DataFrame, y_train: pd.S
 # ------------------------------------------------------------
 # --- helper: evaluation on test set ---
 # ------------------------------------------------------------
-def eval_on_test(model: Pipeline, name: str, X_test: pd.DataFrame, y_test: pd.Series, print_fn: Callable[..., None]) -> dict:
+def eval_on_test(
+    model: Pipeline,
+    name: str,
+    X_test: pd.DataFrame,
+    y_test: pd.Series,
+    print_fn: Callable[..., None],
+) -> dict:
     pred = model.predict(X_test)
 
     acc = accuracy_score(y_test, pred)
@@ -531,5 +552,5 @@ def run_feature_set(set_name: str, selected_features: list[str]) -> None:
 if __name__ == "__main__":
     for set_name, selected_features in FEATURE_SETS.items():
         run_feature_set(set_name, selected_features)
-        
+
     print("Run finished at:", datetime.now().strftime("%H:%M:%S"))

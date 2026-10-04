@@ -1,4 +1,7 @@
+# Train and export the final 16-feature binary model used by the backend.
+
 import json
+
 import joblib
 import numpy as np
 import pandas as pd
@@ -56,6 +59,7 @@ def combine_road_structure(row: pd.Series) -> str:
     had = row["HAD_MASLUL"]
     rav = row["RAV_MASLUL"]
 
+    # Prefer a nonzero HAD_MASLUL value before checking RAV_MASLUL.
     if pd.notna(had) and had != 0:
         if had in [1, 2, 3]:
             return f"HAD_{int(had)}"
@@ -113,6 +117,7 @@ def load_and_prepare_data() -> pd.DataFrame:
 
 
 def build_final_model() -> Pipeline:
+    # Treat all final features as categorical, including numeric codes.
     categorical_transformer = Pipeline(steps=[
         ("imputer", SimpleImputer(strategy="most_frequent")),
         ("onehot", OneHotEncoder(

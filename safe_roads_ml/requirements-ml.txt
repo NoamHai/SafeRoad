@@ -1,0 +1,12 @@
+# Shared constraints match the application's requirements.txt.
+pandas>=2.1.0
+scikit-learn==1.7.2
+joblib>=1.3.0
+
+# Direct ML dependencies and the Excel reader used by pandas.
+# Historical versions are unknown; this is not a reproducibility lockfile.
+numpy
+openpyxl
+matplotlib
+seaborn
+imbalanced-learn

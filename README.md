@@ -13,6 +13,8 @@ It has a **FastAPI** backend that serves a trained machine-learning model, and a
 > The full machine-learning work (data preparation, feature selection, training, evaluation)
 > lives under `safe_roads_ml/`.
 
+See the [ML setup and run guide](safe_roads_ml/README.md) for dependencies and script commands.
+
 ## Requirements
 
 - Python 3.10+

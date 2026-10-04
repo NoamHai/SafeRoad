@@ -1,3 +1,5 @@
+# Rank features for the binary target and export the top-N lists.
+
 import pandas as pd
 import numpy as np
 
@@ -32,7 +34,7 @@ def combine_road_structure(row: pd.Series) -> str:
     had = row["HAD_MASLUL"]
     rav = row["RAV_MASLUL"]
 
-    # single-carriageway values
+    # Prefer a nonzero HAD_MASLUL value before checking RAV_MASLUL.
     if pd.notna(had) and had != 0:
         if had in [1, 2, 3]:
             return f"HAD_{int(had)}"
