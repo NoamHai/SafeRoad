@@ -1,6 +1,7 @@
 """Resource, configuration, and saved-model regression checks."""
 
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -153,6 +154,7 @@ print("controlled mapping failure")
     result = subprocess.run(
         [sys.executable, "-B", "-c", code, failure, json.dumps(VALID_PAYLOAD)],
         cwd=ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30,
+        env={**os.environ, "PYTHONIOENCODING": "utf-8"},
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert "controlled mapping failure" in result.stdout
