@@ -90,3 +90,25 @@ for (const lang of ["en", "he"]) {
     assert.equal(message.textContent, vm.runInContext(`i18n.${lang}.server_error`, context));
   });
 }
+
+
+test("non-urban settlement option is bilingual, survives switching, and sends its mapping key", async () => {
+  const { context, nodes, options } = setup();
+  const choice = options.ZURAT_ISHUV.find(option => option.value === "not_applicable_non_urban");
+  assert.ok(choice);
+  nodes.get("ZURAT_ISHUV").value = choice.value;
+  nodes.get("SUG_DEREH").value = "non_urban_intersection";
+  let payload;
+  context.fetch = async (url, config) => {
+    payload = JSON.parse(config.body);
+    return { ok: true, json: async () => ({ prediction: 0, light_probability: 0.8, dangerous_probability: 0.2 }) };
+  };
+  context.setLanguage("he");
+  assert.equal(nodes.get("ZURAT_ISHUV").value, choice.value);
+  assert.ok(nodes.get("ZURAT_ISHUV").children.some(option => option.textContent === "לא רלוונטי — דרך לא עירונית"));
+  await context.predict();
+  assert.equal(payload.ZURAT_ISHUV, "not_applicable_non_urban");
+  context.setLanguage("en");
+  assert.equal(nodes.get("ZURAT_ISHUV").value, choice.value);
+  assert.ok(nodes.get("ZURAT_ISHUV").children.some(option => option.textContent === "Not applicable — non-urban road"));
+});

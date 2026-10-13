@@ -154,7 +154,8 @@
     "unclassified_place": 51,
     "employment_center": 52,
     "other_kibbutz_area": 53,
-    "rural_refugee_camps": 59
+    "rural_refugee_camps": 59,
+    "not_applicable_non_urban": 99
   },
   "NAFA": {
     "unknown": 0,

@@ -315,7 +315,8 @@ const selectOptions = {
     ["unclassified_place", "Unclassified place", "מקום אחר / לא מסווג"],
     ["employment_center", "Employment center", "מוקד תעסוקה"],
     ["other_kibbutz_area", "Other kibbutz area", "אזור קיבוצי אחר"],
-    ["rural_refugee_camps", "Rural refugee camps", "מחנה פליטים כפרי"]
+    ["rural_refugee_camps", "Rural refugee camps", "מחנה פליטים כפרי"],
+    ["not_applicable_non_urban", "Not applicable — non-urban road", "לא רלוונטי — דרך לא עירונית"]
   ]),
   NAFA: buildLabeledOptions([
     ["unknown", "Unknown", "לא ידוע"],

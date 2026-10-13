@@ -85,7 +85,7 @@ def test_frontend_serving_and_cors() -> None:
         page = client.get("/")
         assert page.status_code == 200
         assert "Accident Severity Classifier" in page.text
-        for asset in ["script.js?v=5", "style.css?v=5"]:
+        for asset in ["script.js?v=6", "style.css?v=5"]:
             response = client.get("/" + asset)
             assert response.status_code == 200
             assert response.content
@@ -158,3 +158,26 @@ print("controlled mapping failure")
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert "controlled mapping failure" in result.stdout
+
+
+@pytest.mark.parametrize("road", ["non_urban_intersection", "non_urban_non_intersection"])
+def test_non_urban_settlement_matches_trained_category(road: str) -> None:
+    """Send settlement 99 unchanged through encoding and real API prediction."""
+    payload = {**VALID_PAYLOAD, "SUG_DEREH": road, "ZURAT_ISHUV": "not_applicable_non_urban"}
+    frame = data_mapper.prepare_model_frame(payload)
+    assert frame.loc[0, "ZURAT_ISHUV"] == 99
+    assert model_service._load_model()
+    model = model_service._cached_model
+    prep = model.named_steps["prep"]
+    categorical = prep.named_transformers_["cat"]
+    columns = next(columns for name, transformer, columns in prep.transformers_ if name == "cat")
+    assert 99 in categorical.named_steps["onehot"].categories_[list(columns).index("ZURAT_ISHUV")]
+    numeric = data_mapper.prepare_model_frame({**payload, "ZURAT_ISHUV": 99})
+    assert frame.equals(numeric)
+    assert (prep.transform(frame) == prep.transform(numeric)).all()
+    prediction, light, dangerous = model_service._probabilities_from_model(model, frame)
+    expected = model_service._prediction_response(prediction, light, dangerous)
+    with TestClient(app) as client:
+        response = client.post("/predict", json=payload)
+    assert response.status_code == 200
+    assert response.json() == expected
