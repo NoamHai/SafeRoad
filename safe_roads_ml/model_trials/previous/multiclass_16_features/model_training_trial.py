@@ -184,10 +184,7 @@ def fit_with_optional_sample_weight(
     X_fit: pd.DataFrame,
     y_fit: pd.Series,
 ) -> bool:
-    """
-    Try to fit with sample_weight if the model supports it,
-    otherwise fit without it.
-    """
+    """Fit the pipeline and return whether balanced sample weights were used."""
     sw = compute_sample_weight(class_weight="balanced", y=y_fit)
 
     try:

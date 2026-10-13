@@ -1,5 +1,7 @@
 # Safe Roads — Accident Severity Classifier
 
+[GitHub repository](https://github.com/NoamHai/SafeRoad)
+
 Safe Roads classifies the severity of a described road accident using 16 features.
 The included scikit-learn model returns **Light** (`0`) or **Dangerous** (`1`, fatal
 or severe), with a model probability for each class. These probabilities do not
