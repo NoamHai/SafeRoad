@@ -186,7 +186,7 @@ def main() -> int:
     print(f"\nOverall: {passed}/{total} tests passed")
 
     if passed == total:
-        print("🎉 All verification tests passed! Project is ready for submission.")
+        print("All verification checks passed. Run pytest and browser checks separately.")
         return 0
     else:
         print("⚠️  Some tests failed. Please review and fix issues.")

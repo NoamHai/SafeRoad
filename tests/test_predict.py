@@ -63,6 +63,7 @@ def test_valid_payload_matches_current_feature_contract() -> None:
 
 
 def test_post_predict_successful_prediction() -> None:
+    """Accept a valid frontend payload and return a saved-model classification."""
     response = client.post("/predict", json=VALID_PAYLOAD)
 
     assert response.status_code == 200
@@ -72,6 +73,7 @@ def test_post_predict_successful_prediction() -> None:
 
 
 def test_post_predict_response_structure_and_types() -> None:
+    """Keep the four response fields and their public types unchanged."""
     response = client.post("/predict", json=VALID_PAYLOAD)
 
     assert response.status_code == 200
@@ -84,6 +86,7 @@ def test_post_predict_response_structure_and_types() -> None:
 
 
 def test_post_predict_probability_values_are_valid() -> None:
+    """Return bounded probabilities whose sum is approximately one."""
     response = client.post("/predict", json=VALID_PAYLOAD)
 
     assert response.status_code == 200
@@ -93,21 +96,24 @@ def test_post_predict_probability_values_are_valid() -> None:
 
     assert 0.0 <= light_probability <= 1.0
     assert 0.0 <= dangerous_probability <= 1.0
-    assert light_probability + dangerous_probability == pytest.approx(1.0, abs=0.01)
+    assert light_probability + dangerous_probability == pytest.approx(1.0, abs=0.0001)
     assert body["prediction"] == (1 if dangerous_probability >= light_probability else 0)
 
 
-def test_post_predict_missing_required_field_is_rejected() -> None:
+@pytest.mark.parametrize("required_field", FEATURE_ORDER)
+def test_post_predict_missing_required_field_is_rejected(required_field: str) -> None:
+    """Reject a request missing a required current feature."""
     payload = VALID_PAYLOAD.copy()
-    payload.pop("SHAA")
+    payload.pop(required_field)
 
     response = client.post("/predict", json=payload)
 
     assert response.status_code == 422
-    assert "SHAA" in response.text
+    assert required_field in response.text
 
 
 def test_post_predict_legacy_payload_is_rejected() -> None:
+    """Reject the obsolete six-field request contract."""
     response = client.post("/predict", json=LEGACY_PAYLOAD)
 
     assert response.status_code == 422
@@ -123,6 +129,7 @@ def test_post_predict_legacy_payload_is_rejected() -> None:
     ],
 )
 def test_post_predict_partial_legacy_payload_is_rejected(legacy_fields: dict[str, str]) -> None:
+    """Reject an incomplete legacy request."""
     response = client.post("/predict", json=legacy_fields)
 
     assert response.status_code == 422
@@ -130,6 +137,7 @@ def test_post_predict_partial_legacy_payload_is_rejected(legacy_fields: dict[str
 
 
 def test_post_predict_mixed_legacy_and_current_payload_is_rejected() -> None:
+    """Reject extra legacy keys even when current fields are present."""
     response = client.post("/predict", json={**VALID_PAYLOAD, "weather": "clear"})
 
     assert response.status_code == 422
@@ -137,6 +145,7 @@ def test_post_predict_mixed_legacy_and_current_payload_is_rejected() -> None:
 
 
 def test_predict_probability_does_not_default_missing_required_fields() -> None:
+    """Reject missing required keys in direct service calls."""
     incomplete_payload = VALID_PAYLOAD.copy()
     incomplete_payload.pop("ROHAV")
 
@@ -145,12 +154,14 @@ def test_predict_probability_does_not_default_missing_required_fields() -> None:
 
 
 def test_predict_probability_rejects_legacy_fields_before_inference() -> None:
+    """Reject legacy service keys before attempting inference."""
     expected = "unexpected fields: junction, lighting, road_surface, road_type, time_of_day, weather"
     with pytest.raises(ValueError, match=expected):
         predict_probability(LEGACY_PAYLOAD)
 
 
 def test_post_predict_invalid_shaa_is_rejected() -> None:
+    """Reject times outside the supported quarter-hour format."""
     payload = {**VALID_PAYLOAD, "SHAA": "25:00"}
 
     response = client.post("/predict", json=payload)
@@ -160,7 +171,9 @@ def test_post_predict_invalid_shaa_is_rejected() -> None:
 
 
 def test_post_predict_model_value_error_becomes_422(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Translate a service input error to HTTP 422."""
     def raise_value_error(payload: dict[str, object]) -> dict[str, object]:
+        """Simulate an input error without calling the saved model."""
         raise ValueError("bad mapped value")
 
     monkeypatch.setattr("backend.routes.predict.predict_probability", raise_value_error)
@@ -172,7 +185,9 @@ def test_post_predict_model_value_error_becomes_422(monkeypatch: pytest.MonkeyPa
 
 
 def test_post_predict_unexpected_model_error_becomes_500(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Hide unexpected service error details behind HTTP 500."""
     def raise_runtime_error(payload: dict[str, object]) -> dict[str, object]:
+        """Simulate an unavailable inference resource."""
         raise RuntimeError("model unavailable")
 
     monkeypatch.setattr("backend.routes.predict.predict_probability", raise_runtime_error)

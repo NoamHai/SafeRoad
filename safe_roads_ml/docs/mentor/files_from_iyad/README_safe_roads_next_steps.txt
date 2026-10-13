@@ -1,3 +1,7 @@
+Historical mentor guidance for the comparison script only.
+Use safe_roads_ml/README.md for the full dependency setup and working directory.
+This experiment does not export the saved model used by the application.
+
 Israel Road Accidents — Improved ML Pipeline
 ============================================
 

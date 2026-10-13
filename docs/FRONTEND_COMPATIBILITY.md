@@ -1,6 +1,6 @@
 # Frontend and Prediction-API Compatibility — Safe Roads
 
-## Verification Summary
+## Interface Summary
 
 The current frontend and backend use the same final 16-field prediction contract. The frontend constructs the uppercase payload in `frontend/script.js`, and `PredictRequest` requires those fields while rejecting unexpected keys.
 
@@ -21,7 +21,7 @@ The frontend consumes exactly:
 - `light_probability`: model probability for class `0`.
 - `dangerous_probability`: model probability for class `1`.
 
-The UI derives displayed percentages and visual risk levels from the returned probabilities. The API does not return a factor breakdown.
+The UI derives displayed percentages and probability display bands from the returned probabilities. The API does not return a factor breakdown.
 
 ## Integration Checks
 

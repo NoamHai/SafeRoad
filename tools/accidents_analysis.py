@@ -7,7 +7,7 @@ from __future__ import annotations
 import os
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 
@@ -23,7 +23,7 @@ class ColumnMeta:
     allowed_values: Optional[List[Union[int, str]]] = None
 
 
-def _extract_allowed_values(text: Any) -> Optional[List[Union[int, str]]]:
+def _extract_allowed_values(text: object) -> Optional[List[Union[int, str]]]:
     """Parse 'allowed values' from a dictionary cell (ranges or lists) as ints or strings."""
     if text is None or (isinstance(text, float) and pd.isna(text)):
         return None
@@ -67,7 +67,7 @@ def load_data_dictionary(xlsx_path: str) -> Dict[str, ColumnMeta]:
     desc_keys = {"description", "desc", "תיאור", "הסבר"}
     allowed_keys = {"values", "allowed", "range", "ערכים", "ערכים אפשריים", "טווח"}
 
-    def normalize_col(c: str) -> str:
+    def normalize_col(c: object) -> str:
         """Normalize a column name for keyword matching."""
         return str(c).strip().lower()
 
@@ -233,7 +233,7 @@ class AccidentsAnalyzer:
 
 
 # ----------------------------
-# Example usage (safe for Mor)
+# Standalone analysis example
 # ----------------------------
 
 if __name__ == "__main__":
@@ -245,7 +245,7 @@ if __name__ == "__main__":
 
     analyzer = AccidentsAnalyzer(csv_path=CSV_PATH, dictionary_xlsx_path=DICT_XLSX)
 
-    # Change this to any column you want:
+    # Select the column used by this standalone example.
     COLUMN_TO_ANALYZE = "MEZEG_AVIR"
 
     dist = analyzer.analyze_column(

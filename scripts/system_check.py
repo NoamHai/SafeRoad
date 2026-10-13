@@ -1,15 +1,13 @@
 """
 Safe Roads: System Verification Checklist
 
-Complete end-to-end verification for UI ↔ Backend integration
+Inspect repository structure and imports; this is not a browser or inference test.
 """
 
-import json
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
 
 # This script lives in scripts/; anchor to the project root so backend imports
 # and relative file paths work regardless of where it is launched from.
@@ -23,11 +21,12 @@ if hasattr(sys.stdout, "reconfigure"):
 
 
 class SystemVerificationChecklist:
-    """Interactive verification checklist for Safe Roads system."""
+    """Collect structure and import checks for the Safe Roads application."""
     
     def __init__(self) -> None:
+        """Initialize an empty checklist with the current timestamp."""
         self.timestamp = datetime.now().isoformat()
-        self.checks = {}
+        self.checks: dict[str, list[dict[str, str]]] = {}
     
     def add_check(self, category: str, item: str, status: str, notes: str = "") -> None:
         """Add a verification check result."""
@@ -64,7 +63,7 @@ class SystemVerificationChecklist:
         
         self._print_summary()
     
-    def _print_category(self, category: str, items: List[Dict[str, Any]]) -> None:
+    def _print_category(self, category: str, items: list[dict[str, str]]) -> None:
         """Print a verification category."""
         print(f"\n[{category}]")
         print("-" * 100)
@@ -107,7 +106,7 @@ class SystemVerificationChecklist:
         print(f"\nReadiness: {passed}/{total} checks passing")
         
         if passed == total:
-            print("✓ SYSTEM READY FOR DEPLOYMENT")
+            print("All structure checks passed; runtime and browser checks are separate.")
         else:
             pending = status_counts.get("PENDING", 0) + status_counts.get("MANUAL", 0)
             if pending > 0:
@@ -119,7 +118,7 @@ class SystemVerificationChecklist:
 
 
 def run_verification() -> SystemVerificationChecklist:
-    """Run complete system verification."""
+    """Inspect repository files, imports, and configuration."""
     checker = SystemVerificationChecklist()
     
     # ==================== BACKEND STRUCTURE ====================
@@ -169,6 +168,7 @@ def run_verification() -> SystemVerificationChecklist:
                             f"Missing: {missing_features}")
         
         # Check mapping functions
+        # Import checks intentionally retain symbols without invoking their helpers.
         from backend.services.data_mapper import (
             prepare_model_input,
             prepare_model_array,
@@ -273,7 +273,6 @@ def run_verification() -> SystemVerificationChecklist:
         
         # Check request fields
         try:
-            from pydantic import BaseModel
             request_fields = set(PredictRequest.model_fields.keys())
             expected_fields = set(FEATURE_ORDER)
             if request_fields == expected_fields:
@@ -301,7 +300,7 @@ def run_verification() -> SystemVerificationChecklist:
         
         test_files = [
             ("tests/test_predict.py", "Prediction endpoint tests"),
-            ("scripts/integration_test.py", "End-to-end integration test"),
+            ("scripts/integration_test.py", "Mapper and legacy helper checks"),
             ("scripts/verify_final.py", "System functionality verification"),
         ]
         
@@ -322,8 +321,8 @@ def run_verification() -> SystemVerificationChecklist:
         from pathlib import Path
         
         doc_files = [
-            ("backend/services/README_DATA_MAPPER.md", "Complete data mapper documentation (500+ lines)"),
-            ("docs/FINAL_SUBMISSION_CHECK.md", "Submission requirements checklist"),
+            ("backend/services/README_DATA_MAPPER.md", "Data mapper reference"),
+            ("README.md", "Application setup and verification instructions"),
             ("requirements.txt", "Project dependencies"),
             ("requirements-dev.txt", "Development dependencies"),
         ]

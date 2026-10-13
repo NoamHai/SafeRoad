@@ -13,7 +13,7 @@ Use a dedicated Python environment. From the project root, install:
 python -m pip install -r safe_roads_ml/requirements-ml.txt
 ```
 
-The project documents Python 3.10+. Use an interpreter supported by the listed
+The application supports Python 3.10–3.12. Use an interpreter supported by the listed
 packages. Shared pandas, scikit-learn, and joblib constraints match the application
 requirements; the ML list does not install the web framework. Other dependencies
 are unpinned because their historical versions are unknown. Installation and

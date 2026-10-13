@@ -56,6 +56,7 @@ FINAL_FEATURES = [
 
 
 def combine_road_structure(row: pd.Series) -> str:
+    """Prefer nonzero HAD_MASLUL codes, then RAV_MASLUL, otherwise return OTHER."""
     had = row["HAD_MASLUL"]
     rav = row["RAV_MASLUL"]
 
@@ -74,6 +75,7 @@ def combine_road_structure(row: pd.Series) -> str:
 
 
 def load_and_prepare_data() -> pd.DataFrame:
+    """Clean the training input and combine fatal and severe accidents into class 1."""
     df = pd.read_excel(INPUT_FILE)
     df = df.replace(r"^\s*$", np.nan, regex=True)
 
@@ -98,6 +100,7 @@ def load_and_prepare_data() -> pd.DataFrame:
     ]
     df = df.drop(columns=drop_cols, errors="ignore")
 
+    # Remove mostly missing predictors while retaining the supervised target.
     missing_ratio = df.isnull().mean()
     cols_to_drop = missing_ratio[missing_ratio > MISSING_THRESHOLD].index.tolist()
 
@@ -107,6 +110,7 @@ def load_and_prepare_data() -> pd.DataFrame:
     df = df.drop(columns=cols_to_drop, errors="ignore")
     df = df.dropna(subset=[TARGET_COL]).copy()
 
+    # Fatal (1) and severe (2) form the Dangerous class; light (3) becomes class 0.
     df[BINARY_TARGET_COL] = df[TARGET_COL].replace({
         1: 1,
         2: 1,
@@ -118,6 +122,7 @@ def load_and_prepare_data() -> pd.DataFrame:
 
 def build_final_model() -> Pipeline:
     # Treat all final features as categorical, including numeric codes.
+    """Build the categorical preprocessing and final binary classifier pipeline."""
     categorical_transformer = Pipeline(steps=[
         ("imputer", SimpleImputer(strategy="most_frequent")),
         ("onehot", OneHotEncoder(
@@ -145,6 +150,7 @@ def build_final_model() -> Pipeline:
 
 
 def main() -> None:
+    """Train the final pipeline and overwrite the saved model, metadata, and report."""
     df = load_and_prepare_data()
 
     X = df[FINAL_FEATURES].copy()
@@ -158,6 +164,7 @@ def main() -> None:
         stratify=y,
     )
 
+    # Give each class equal total weight despite the larger Light class.
     sample_weights = compute_sample_weight(
         class_weight="balanced",
         y=y_train,

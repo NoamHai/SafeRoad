@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
+from collections.abc import AsyncIterator
 import logging
 
 from .config import settings
@@ -20,7 +21,7 @@ logger.info(f"CORS origins: {settings.cors_origins}")
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Log a confirmation once the application has started."""
     logger.info("=== Application started successfully ===")
     logger.info("API endpoint: /predict")

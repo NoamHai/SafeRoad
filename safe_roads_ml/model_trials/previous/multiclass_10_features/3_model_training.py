@@ -20,7 +20,6 @@ from sklearn.metrics import (
     f1_score
 )
 
-from typing import Any
 
 # --- log all prints to file only (no console output) ---
 os.makedirs("runs", exist_ok=True)
@@ -28,7 +27,8 @@ stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 LOG_PATH = f"runs/run_{stamp}.txt"
 _log_f = open(LOG_PATH, "w", encoding="utf-8")
 
-def print(*args: Any, **kwargs: Any) -> None:
+def print(*args: object, **kwargs: object) -> None:
+    """Write experiment output to the log and flush it immediately."""
     builtins.print(*args, file=_log_f, **kwargs)
     _log_f.flush()
 
@@ -106,7 +106,8 @@ preprocess = ColumnTransformer(
 )
 
 # --- helpers ---
-def eval_on_val(model: Pipeline, name: str) -> dict:
+def eval_on_val(model: Pipeline, name: str) -> dict[str, str | float]:
+    """Fit on training data and return validation metrics for the named model."""
     model.fit(X_train, y_train)
     pred = model.predict(X_val)
 
@@ -128,7 +129,8 @@ def eval_on_val(model: Pipeline, name: str) -> dict:
         "val_f1_weighted": float(f1_weighted),
     }
 
-def cv_on_train(model: Pipeline, name: str, cv: StratifiedKFold) -> dict:
+def cv_on_train(model: Pipeline, name: str, cv: StratifiedKFold) -> dict[str, float]:
+    """Return mean cross-validation metrics computed only on training data."""
     scoring = {
         "bal_acc": "balanced_accuracy",
         "f1_macro": "f1_macro",

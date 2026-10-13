@@ -7,6 +7,7 @@ import sys
 
 def quarter_to_hour_counts(q_series: pd.Series) -> dict[int, int]:
     # SHAA codes 1-96 represent quarter-hours; group them into hours 0-23.
+    """Count valid quarter-hour codes by hour, including hours with no records."""
     s = pd.to_numeric(q_series, errors="coerce").dropna().astype(int)
     s = s[(s >= 1) & (s <= 96)]
     hours = (s - 1) // 4
@@ -16,6 +17,7 @@ def quarter_to_hour_counts(q_series: pd.Series) -> dict[int, int]:
 
 
 def compute_distribution(counts_dict: dict[int, int], name: str) -> None:
+    """Print counts and percentages, then save a chart when the total is nonzero."""
     total = sum(counts_dict.values())
     if total == 0:
         print("Can't compute distribution of 0 values")
@@ -33,7 +35,8 @@ def compute_distribution(counts_dict: dict[int, int], name: str) -> None:
     plot_distribution(dist_percent, title=f"Distribution of {name}", filename=f"{name}_distribution.png")
 
 
-def plot_distribution(dist: dict, title: str, filename: str) -> None:
+def plot_distribution(dist: dict[int, float], title: str, filename: str) -> None:
+    """Save a percentage bar chart to the requested image file."""
     keys = sorted(dist)
     values = [dist[k] for k in keys]
 
@@ -48,6 +51,7 @@ def plot_distribution(dist: dict, title: str, filename: str) -> None:
 
 
 def run_analysis() -> None:
+    """Read the local Excel input and report each numeric feature distribution."""
     df = pd.read_excel("accidents_copy_for_data_disturbution.xlsx", engine="openpyxl")
     col_names = df.columns.tolist()
 
@@ -63,6 +67,7 @@ def run_analysis() -> None:
 
 
 def main() -> None:
+    """Write the distribution report and plots from the local Excel input."""
     output_file = "distribution_output.txt"
     with open(output_file, "w", encoding="utf-8") as f:
         sys.stdout = f

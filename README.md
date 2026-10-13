@@ -1,122 +1,62 @@
-# Safe Roads – Accident Risk Predictor
+# Safe Roads — Accident Severity Classifier
 
-A web application that predicts the **severity of a road accident** – *light* vs *dangerous* –
-from 16 conditions describing the time, place, road and weather of the accident.
-
-It has a **FastAPI** backend that serves a trained machine-learning model, and a static
-**bilingual (English / Hebrew RTL)** frontend.
-
-- **Model:** `HistGradientBoostingClassifier` (scikit-learn), trained on ~66,000 Israeli road
-  accident records (2018–2023, data.gov.il).
-- **Prediction:** `0 = Light accident`, `1 = Dangerous accident`, with probabilities for each class.
-
-> The full machine-learning work (data preparation, feature selection, training, evaluation)
-> lives under `safe_roads_ml/`.
-
-See the [ML setup and run guide](safe_roads_ml/README.md) for dependencies and script commands.
+Safe Roads classifies the severity of a described road accident using 16 features.
+The included scikit-learn model returns **Light** (`0`) or **Dangerous** (`1`, fatal
+or severe), with a model probability for each class. These probabilities do not
+estimate whether an accident will occur. The English/Hebrew interface supports RTL.
 
 ## Requirements
 
-- Python 3.10+
-- A modern web browser
+- Python 3.10–3.12 (Python 3.12 is recommended for the Windows commands below).
+- A modern browser and internet access for the initial dependency installation.
+- No database, API credentials, Node.js build, or model retraining is required.
 
-## Installation
+## Windows setup
 
-```powershell
-# from the project root
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt          # runtime
-pip install -r requirements-dev.txt       # optional: adds pandas + test tools
-```
-
-## Running the app
+Open PowerShell in the repository root. If `py` does not find Python 3.12, use the
+full path to an installed Python 3.12 interpreter for the first command.
 
 ```powershell
-venv\Scripts\python.exe -m uvicorn backend.app:app --reload --port 8000
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Then open **http://127.0.0.1:8000** – the frontend is served by the backend on the same origin.
-Fill in the conditions, click **Predict Risk**, and the estimated risk is shown.
+## Start
 
-## API
-
-### `POST /predict`
-
-Send the 16 features. Values are the option keys used by the frontend (the backend maps them to
-the numeric codes the model expects via `backend/services/feature_value_mappings.json`).
-
-**Request:**
-
-```json
-{
-  "SHAA": "21:30",
-  "HODESH_TEUNA": "december",
-  "YOM_BASHAVUA": "sunday",
-  "SUG_TEUNA": "pedestrian_collision",
-  "ROAD_STRUCTURE": "single_lane_1",
-  "ROHAV": "unknown_road_width",
-  "NAFA": "unknown",
-  "ZURAT_ISHUV": "urban_refugee_camps",
-  "MEHIRUT_MUTERET": "unknown_speed_limit",
-  "TEURA": "daylight",
-  "SUG_DEREH": "urban_intersection",
-  "SIMUN_TIMRUR": "defective_or_missing_road_marking",
-  "TKINUT": "unknown_road_condition",
-  "PNE_KVISH": "dry",
-  "MEZEG_AVIR": "clear",
-  "YOM_LAYLA": "day"
-}
-```
-
-**Response:**
-
-```json
-{
-  "prediction": 0,
-  "prediction_label": "Light accident",
-  "light_probability": 0.5946,
-  "dangerous_probability": 0.4054
-}
-```
-
-## Project structure
-
-```
-final_project/
-├── backend/                     # FastAPI backend
-│   ├── app.py                   # App, CORS, serves the frontend
-│   ├── config.py                # Settings
-│   ├── models/schemas.py        # Request/response models (16-feature PredictRequest, ModelResult)
-│   ├── routes/predict.py        # POST /predict
-│   └── services/
-│       ├── model_service.py     # Loads the model, runs prediction
-│       ├── data_mapper.py       # Maps UI values -> numeric feature codes
-│       └── feature_value_mappings.json   # Authoritative value mappings
-├── frontend/                    # Static UI (bilingual, RTL/LTR)
-│   ├── index.html
-│   ├── script.js
-│   └── style.css
-├── safe_roads_ml/               # Machine-learning work (data, training, model, evaluation)
-├── tests/                       # Pytest tests
-├── requirements.txt
-└── requirements-dev.txt
-```
-
-## Testing
+Run from the repository root:
 
 ```powershell
-pip install -r requirements-dev.txt
-venv\Scripts\python.exe -m pytest -v
+.\.venv\Scripts\python.exe -m uvicorn backend.app:app --reload --port 8000
 ```
 
-## Notes
+Open **http://127.0.0.1:8000**. One server serves both the frontend and `POST /predict`.
+Select the accident scenario, including accident type, then click **Classify Severity**.
+The gauge shows display bands of the Dangerous-class probability; it is not a
+validated driving-safety scale. Stop the server with `Ctrl+C`.
 
-- The 16 feature names, their order, and the mapping values are fixed by the trained model and
-  must not be changed independently of the model.
-- If the model file (`safe_roads_ml/final_model/saved_model/safe_roads_model.joblib`) is missing,
-  the API returns an error instead of guessing – there is no rule-based fallback.
+## Included resources and optional configuration
 
----
+Keep `safe_roads_ml/final_model/saved_model/safe_roads_model.joblib`, its
+`model_metadata.json`, and `backend/services/feature_value_mappings.json` in place.
+The application uses the included model without training. If the model or required
+mappings cannot be loaded, prediction returns an error instead of substitute results.
 
-*Academic final project – Tel-Hai Academic College, Department of Computer Science.*
+No `.env` file is required. To customize `APP_NAME`, `DEBUG`, or `CORS_ORIGINS`, copy
+`.env.example` to `.env` in the root. `CORS_ORIGINS` uses a JSON list. Same-origin
+startup needs no CORS changes. Google Fonts is optional; CSS provides fallback fonts.
+
+## Verify
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python.exe -m pytest
+```
+
+The tests cover the API contract, actual saved-model predictions, mappings,
+required-resource failures, configuration, and static frontend serving. If Node.js
+is available, run `node --test tests/frontend.test.cjs` for UI logic regressions.
+Browser checks remain separate; see [the runbook](docs/FINAL_RUNBOOK.md).
+
+For data preparation, experiments, and training instructions, see the
+[ML guide](safe_roads_ml/README.md). See [the API contract](docs/ML_INTERFACE_CONTRACT.md)
+for request and response details.

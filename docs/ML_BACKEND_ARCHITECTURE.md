@@ -7,7 +7,7 @@ This document describes the implemented runtime architecture for accident-severi
 - The backend does not train or modify the model.
 - Every prediction requires the final 16-field request contract.
 - The mapper preserves the model's verified feature order and mapping meanings.
-- The real saved model is required; there is no heuristic fallback.
+- The real saved model and authoritative mappings are required; there is no heuristic fallback.
 
 ## Relevant Structure
 
@@ -47,7 +47,7 @@ safe_roads_ml/final_model/saved_model/
 
 ### `backend/services/data_mapper.py`
 
-- Converts supported application values to the numeric representation expected by the model.
+- Converts supported application values to the integer or string representation expected by the model.
 - Builds a one-row frame in `FEATURE_ORDER`.
 - Validates the special `SHAA` time representation.
 
@@ -71,3 +71,6 @@ safe_roads_ml/final_model/saved_model/
 7. The API returns the four-field `ModelResult`.
 
 This boundary keeps application validation and mapping explicit while preserving the saved ML pipeline as the authority for inference.
+
+The mapping resource is loaded once per process. Resource errors preserve static
+serving but make prediction return controlled HTTP 500; no older codes are substituted.

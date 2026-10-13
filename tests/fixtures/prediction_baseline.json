@@ -1,0 +1,194 @@
+[
+  {
+    "payload": {
+      "SHAA": "08:00",
+      "HODESH_TEUNA": "january",
+      "YOM_BASHAVUA": "sunday",
+      "SUG_TEUNA": "front_to_side_collision",
+      "ROAD_STRUCTURE": "single_lane_1",
+      "ROHAV": "5_to_7_meters",
+      "NAFA": "tel_aviv",
+      "ZURAT_ISHUV": "jewish_city_100k_200k",
+      "MEHIRUT_MUTERET": "up_to_50_kmh",
+      "TEURA": "daylight",
+      "SUG_DEREH": "urban_intersection",
+      "SIMUN_TIMRUR": "no_defect",
+      "TKINUT": "no_defect",
+      "PNE_KVISH": "dry",
+      "MEZEG_AVIR": "clear",
+      "YOM_LAYLA": "day"
+    },
+    "columns": [
+      "SHAA",
+      "HODESH_TEUNA",
+      "YOM_BASHAVUA",
+      "SUG_TEUNA",
+      "ROAD_STRUCTURE",
+      "ROHAV",
+      "NAFA",
+      "ZURAT_ISHUV",
+      "MEHIRUT_MUTERET",
+      "TEURA",
+      "SUG_DEREH",
+      "SIMUN_TIMRUR",
+      "TKINUT",
+      "PNE_KVISH",
+      "MEZEG_AVIR",
+      "YOM_LAYLA"
+    ],
+    "mapped": [
+      [
+        33,
+        1,
+        1,
+        2,
+        "HAD_1",
+        2,
+        51,
+        14,
+        1,
+        1,
+        1,
+        3,
+        1,
+        1,
+        1,
+        1
+      ]
+    ],
+    "response": {
+      "prediction": 0,
+      "prediction_label": "Light accident",
+      "light_probability": 0.7704,
+      "dangerous_probability": 0.2296
+    }
+  },
+  {
+    "payload": {
+      "SHAA": "08:00",
+      "HODESH_TEUNA": "january",
+      "YOM_BASHAVUA": "sunday",
+      "SUG_TEUNA": "skidding",
+      "ROAD_STRUCTURE": "single_lane_1",
+      "ROHAV": "5_to_7_meters",
+      "NAFA": "tel_aviv",
+      "ZURAT_ISHUV": "jewish_city_100k_200k",
+      "MEHIRUT_MUTERET": "up_to_50_kmh",
+      "TEURA": "daylight",
+      "SUG_DEREH": "urban_intersection",
+      "SIMUN_TIMRUR": "no_defect",
+      "TKINUT": "no_defect",
+      "PNE_KVISH": "dry",
+      "MEZEG_AVIR": "clear",
+      "YOM_LAYLA": "day"
+    },
+    "columns": [
+      "SHAA",
+      "HODESH_TEUNA",
+      "YOM_BASHAVUA",
+      "SUG_TEUNA",
+      "ROAD_STRUCTURE",
+      "ROHAV",
+      "NAFA",
+      "ZURAT_ISHUV",
+      "MEHIRUT_MUTERET",
+      "TEURA",
+      "SUG_DEREH",
+      "SIMUN_TIMRUR",
+      "TKINUT",
+      "PNE_KVISH",
+      "MEZEG_AVIR",
+      "YOM_LAYLA"
+    ],
+    "mapped": [
+      [
+        33,
+        1,
+        1,
+        11,
+        "HAD_1",
+        2,
+        51,
+        14,
+        1,
+        1,
+        1,
+        3,
+        1,
+        1,
+        1,
+        1
+      ]
+    ],
+    "response": {
+      "prediction": 1,
+      "prediction_label": "Dangerous accident",
+      "light_probability": 0.4839,
+      "dangerous_probability": 0.5161
+    }
+  },
+  {
+    "payload": {
+      "SHAA": "08:00",
+      "HODESH_TEUNA": "january",
+      "YOM_BASHAVUA": "sunday",
+      "SUG_TEUNA": "front_to_side_collision",
+      "ROAD_STRUCTURE": "single_lane_1",
+      "ROHAV": "unknown_road_width",
+      "NAFA": "tel_aviv",
+      "ZURAT_ISHUV": "jewish_city_100k_200k",
+      "MEHIRUT_MUTERET": "up_to_50_kmh",
+      "TEURA": "daylight",
+      "SUG_DEREH": "urban_intersection",
+      "SIMUN_TIMRUR": "no_defect",
+      "TKINUT": "no_defect",
+      "PNE_KVISH": "dry",
+      "MEZEG_AVIR": "clear",
+      "YOM_LAYLA": "day"
+    },
+    "columns": [
+      "SHAA",
+      "HODESH_TEUNA",
+      "YOM_BASHAVUA",
+      "SUG_TEUNA",
+      "ROAD_STRUCTURE",
+      "ROHAV",
+      "NAFA",
+      "ZURAT_ISHUV",
+      "MEHIRUT_MUTERET",
+      "TEURA",
+      "SUG_DEREH",
+      "SIMUN_TIMRUR",
+      "TKINUT",
+      "PNE_KVISH",
+      "MEZEG_AVIR",
+      "YOM_LAYLA"
+    ],
+    "mapped": [
+      [
+        33,
+        1,
+        1,
+        2,
+        "HAD_1",
+        0,
+        51,
+        14,
+        1,
+        1,
+        1,
+        3,
+        1,
+        1,
+        1,
+        1
+      ]
+    ],
+    "response": {
+      "prediction": 0,
+      "prediction_label": "Light accident",
+      "light_probability": 0.7669,
+      "dangerous_probability": 0.2331
+    }
+  }
+]

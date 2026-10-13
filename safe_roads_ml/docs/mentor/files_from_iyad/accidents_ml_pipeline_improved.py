@@ -1,7 +1,8 @@
+"""Retain the mentor comparison of Random Forest weighting and SMOTENC sampling."""
+
 import warnings
 warnings.filterwarnings("ignore")
 
-import os
 import numpy as np
 import pandas as pd
 
@@ -18,7 +19,6 @@ from sklearn.metrics import (
 
 from imblearn.over_sampling import SMOTENC
 
-from typing import Any
 
 
 # ============================================================
@@ -35,8 +35,7 @@ RANDOM_STATE = 42
 df = pd.read_csv(CSV_PATH)
 print(f"Raw shape: {df.shape}")
 
-# Same general drop idea as in the analysis file the lecturer sent:
-# identifiers, near-empty location fields, redundant geographic fields
+# Drop identifiers, near-empty location fields, and redundant geographic fields.
 DROP_COLS = [
     "pk_teuna_fikt", "sug_tik",
     "REHOV1", "REHOV2", "BAYIT",
@@ -53,7 +52,7 @@ print(f"After column drop: {df.shape}")
 # ============================================================
 # 2. DEFINE COLUMN TYPES
 # ============================================================
-# These are the same feature groups as in the lecturer's script.
+# Retain the feature groups used by the historical baseline.
 NUM_COLS = [col for col in ["HODESH_TEUNA", "SHAA"] if col in df.columns]
 
 CAT_COLS = [
@@ -139,7 +138,8 @@ X_test = X_test.astype(float)
 # ============================================================
 # 6. HELPER FUNCTION FOR EVALUATION
 # ============================================================
-def evaluate_model(model: Any, X_tr: pd.DataFrame, y_tr: pd.Series, X_te: pd.DataFrame, y_te: pd.Series, model_name: str) -> dict:
+def evaluate_model(model: RandomForestClassifier, X_tr: pd.DataFrame, y_tr: pd.Series, X_te: pd.DataFrame, y_te: pd.Series, model_name: str) -> dict[str, str | float | np.ndarray | RandomForestClassifier]:
+    """Fit a Random Forest and return its predictions, metrics, and fitted estimator."""
     model.fit(X_tr, y_tr)
     y_pred = model.predict(X_te)
 
@@ -265,9 +265,8 @@ print(comparison_df)
 
 
 # ============================================================
-# 11. SAVE FEATURE IMPORTANCE OF THE BEST / MOST ADVANCED MODEL
-# Here I save the feature importance of the SMOTENC model,
-# because usually that is the most relevant improved version.
+# 11. SAVE FEATURE IMPORTANCE OF THE SMOTENC MODEL
+# This report uses rf_smote regardless of the comparison ranking.
 # ============================================================
 fi_df = pd.DataFrame({
     "feature": X_train.columns,

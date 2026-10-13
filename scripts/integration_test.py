@@ -1,11 +1,8 @@
 """
-Safe Roads: End-to-End Integration Test & System Verification
+Safe Roads: Mapper and Legacy Helper Checks
 
-This script verifies that:
-1. Backend data mapper correctly handles all 16 features
-2. Frontend UI properly converts Hebrew strings to integer codes
-3. Data pipeline flows correctly from UI → Backend → Model
-4. RTL/LTR language support is consistent
+Checks the current option mappings, input conversion, and legacy numeric road helper.
+These checks do not run the browser or establish end-to-end application readiness.
 """
 
 import sys
@@ -318,11 +315,11 @@ def test_road_structure_engineering() -> bool:
 
 
 def main() -> int:
-    """Run all integration tests."""
+    """Run all mapper and legacy helper checks."""
     print("\n")
     print("█" * 80)
     print("█" + " " * 78 + "█")
-    print("█" + "  SAFE ROADS: END-TO-END INTEGRATION TEST  ".center(78) + "█")
+    print("█" + "  SAFE ROADS: MAPPER AND LEGACY HELPER CHECKS  ".center(78) + "█")
     print("█" + " " * 78 + "█")
     print("█" * 80)
     
@@ -353,7 +350,7 @@ def main() -> int:
     print("="*80 + "\n")
     
     if passed == total:
-        print("✓ ALL TESTS PASSED - System is ready for production!")
+        print("✓ All mapper and legacy helper checks passed. Browser and API checks are separate.")
         return 0
     else:
         print(f"✗ {total - passed} TEST(S) FAILED - Please review errors above")

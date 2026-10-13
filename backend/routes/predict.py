@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException
-from typing import Any, Dict, List
 import logging
 
 from ..models.schemas import PredictRequest, ModelResult
@@ -28,6 +27,6 @@ def predict(req: PredictRequest) -> ModelResult:
     except ValueError as e:
         logger.warning(f"Invalid prediction input: {e}")
         raise HTTPException(status_code=422, detail=str(e))
-    except Exception as e:
+    except Exception:
         logger.exception("Error occurred during prediction")
         raise HTTPException(status_code=500, detail="Internal server error")

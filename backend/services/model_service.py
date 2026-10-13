@@ -3,12 +3,25 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, TypedDict, TYPE_CHECKING
 
 import joblib
 import pandas as pd
 
+if TYPE_CHECKING:
+    from sklearn.pipeline import Pipeline
+
 from .data_mapper import FEATURE_ORDER, prepare_model_frame
+
+
+class PredictionResponse(TypedDict):
+    """The unchanged four-field prediction response."""
+
+    prediction: int
+    prediction_label: str
+    light_probability: float
+    dangerous_probability: float
+
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +30,7 @@ MODEL_DIR = PROJECT_ROOT / "safe_roads_ml" / "final_model" / "saved_model"
 MODEL_PATH = MODEL_DIR / "safe_roads_model.joblib"
 METADATA_PATH = MODEL_DIR / "model_metadata.json"
 
-_cached_model = None
+_cached_model: Pipeline | None = None
 _cached_metadata: Optional[Dict[str, Any]] = None
 _model_loaded = False
 
@@ -76,7 +89,7 @@ def _target_labels() -> Dict[int, str]:
     }
 
 
-def _final_feature_frame(user_input: Dict[str, Any]) -> pd.DataFrame:
+def _final_feature_frame(user_input: Dict[str, object]) -> pd.DataFrame:
     """Build the single-row model input frame from user input."""
     missing = [feature for feature in FEATURE_ORDER if feature not in user_input]
     unexpected = sorted(set(user_input).difference(FEATURE_ORDER))
@@ -91,9 +104,10 @@ def _final_feature_frame(user_input: Dict[str, Any]) -> pd.DataFrame:
     return prepare_model_frame(user_input, FEATURE_ORDER)
 
 
-def _probabilities_from_model(model: Any, frame: pd.DataFrame) -> Tuple[int, float, float]:
+def _probabilities_from_model(model: Pipeline, frame: pd.DataFrame) -> Tuple[int, float, float]:
     """Return (prediction, light_prob, dangerous_prob) from the model's predict_proba."""
     raw_probabilities = model.predict_proba(frame)[0]
+    # Probability columns follow model.classes_, not a fixed positional label order.
     classes = list(getattr(model, "classes_", [0, 1]))
     probability_map = {int(cls): float(prob) for cls, prob in zip(classes, raw_probabilities)}
 
@@ -114,7 +128,7 @@ def _probabilities_from_model(model: Any, frame: pd.DataFrame) -> Tuple[int, flo
     return prediction, light_probability, dangerous_probability
 
 
-def _prediction_response(prediction: int, light_probability: float, dangerous_probability: float) -> Dict[str, Any]:
+def _prediction_response(prediction: int, light_probability: float, dangerous_probability: float) -> PredictionResponse:
     """Build the API response dict from a prediction and its probabilities."""
     labels = _target_labels()
     return {
@@ -125,7 +139,7 @@ def _prediction_response(prediction: int, light_probability: float, dangerous_pr
     }
 
 
-def predict_probability(user_input: Dict[str, Any]) -> Dict[str, Any]:
+def predict_probability(user_input: Dict[str, object]) -> PredictionResponse:
     """Predict the binary accident class for the final 16-feature payload."""
 
     frame = _final_feature_frame(dict(user_input))

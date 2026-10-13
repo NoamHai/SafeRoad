@@ -51,6 +51,7 @@ The metadata supplies the target labels, while `FEATURE_ORDER` controls the appl
 
 - Invalid request shape or keys: rejected before inference.
 - Invalid `SHAA`: rejected as a validation error.
+- Missing, unreadable, or invalid authoritative mappings: prediction returns HTTP `500`.
 - Missing or unloadable saved model: prediction is disabled and the API returns an error.
 - Model inference failure: logged and returned as an API error.
 

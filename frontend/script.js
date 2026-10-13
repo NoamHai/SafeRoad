@@ -2,12 +2,12 @@ const i18n = {
   en: {
     choose_language: "Choose a language",
     title: "Safe Roads",
-    subtitle: "Real-time Accident Risk Assessment",
-    driving_conditions: "Driving Conditions",
-    select_conditions: "Select your current driving conditions to get an instant risk assessment.",
+    subtitle: "Accident Severity Classification",
+    driving_conditions: "Accident Conditions",
+    select_conditions: "Describe an accident scenario to classify its severity.",
     section_time_location: "Time & Location",
     section_road_conditions: "Road Conditions",
-    section_accident_details: "Environment & Visibility",
+    section_accident_details: "Accident Details",
     label_SHAA: "Time",
     label_HODESH_TEUNA: "Month",
     label_YOM_BASHAVUA: "Day of Week",
@@ -24,33 +24,33 @@ const i18n = {
     label_YOM_LAYLA: "Day / Night",
     label_SUG_TEUNA: "Accident Type",
     label_SIMUN_TIMRUR: "Traffic Marking",
-    predict_risk: "Predict Risk",
+    predict_risk: "Classify Severity",
     analyzing: "Analyzing...",
-    risk_assessment: "Risk Assessment",
+    risk_assessment: "Severity Classification",
     risk_level: "Prediction",
     ready: "Ready",
-    low_risk: "Low Risk",
-    medium_risk_label: "Medium Risk",
-    high_risk: "High Risk",
+    low_risk: "Lower probability",
+    medium_risk_label: "Medium probability",
+    high_risk: "Higher probability",
     light_accident: "Light Accident",
     dangerous_accident: "Dangerous Accident",
-    recommendation: "Recommendation",
+    recommendation: "Interpretation",
     risk_factors: "Prediction Details",
-    select_conditions_advice: "Select your driving conditions and click \"Predict Risk\" to get personalized safety recommendations.",
+    select_conditions_advice: "Describe an accident scenario and click \"Classify Severity\". The result estimates severity, not whether an accident will occur.",
     calculating: "Calculating prediction...",
-    why_this_risk: "Why this risk?",
-    low_risk_label: "Low risk",
-    high_risk_label: "High risk",
+    why_this_risk: "Model output",
+    low_risk_label: "Lower dangerous-class probability",
+    high_risk_label: "Higher dangerous-class probability",
     low: "Low",
     medium: "Medium",
     high: "High",
     error: "Error",
-    low_risk_advice: "Low risk. Drive normally and stay alert.",
-    medium_risk_advice: "Medium risk. Reduce speed and stay focused.",
-    high_risk_advice: "High risk. Drive carefully and avoid distractions.",
-    unable_calculate: "Unable to Calculate Risk",
+    low_risk_advice: "Lower model probability of a dangerous accident, given the selected accident scenario. This does not estimate accident occurrence.",
+    medium_risk_advice: "Medium model probability of a dangerous accident, given the selected accident scenario. This does not estimate accident occurrence.",
+    high_risk_advice: "Higher model probability of a dangerous accident, given the selected accident scenario. This does not estimate accident occurrence.",
+    unable_calculate: "Unable to Classify Severity",
     check_connection: "Please check your connection and try again.",
-    footer_note: "Educational demonstration – not a substitute for official road-safety guidance.",
+    footer_note: "Educational severity classifier. Dangerous means fatal or severe; the output is not the probability of an accident occurring.",
     network_error: "Network connection failed. Please check if the backend server is running.",
     server_error: "Server error occurred. Please try again later.",
     invalid_response: "Received invalid response from server.",
@@ -65,12 +65,12 @@ const i18n = {
   he: {
     choose_language: "בחר שפה",
     title: "כבישים בטוחים",
-    subtitle: "הערכת סיכון תאונות בזמן אמת",
-    driving_conditions: "תנאי נהיגה",
-    select_conditions: "בחר את תנאי הנהיגה הנוכחיים שלך כדי לקבל הערכת סיכון מיידית.",
+    subtitle: "סיווג חומרת תאונה",
+    driving_conditions: "תנאי התאונה",
+    select_conditions: "בחר מאפיינים של תרחיש תאונה כדי לסווג את חומרתה.",
     section_time_location: "זמן ומיקום",
     section_road_conditions: "תנאי הדרך",
-    section_accident_details: "סביבה ונראות",
+    section_accident_details: "פרטי התאונה",
     label_SHAA: "זמן",
     label_HODESH_TEUNA: "חודש",
     label_YOM_BASHAVUA: "יום בשבוע",
@@ -87,33 +87,33 @@ const i18n = {
     label_YOM_LAYLA: "יום / לילה",
     label_SUG_TEUNA: "סוג תאונה",
     label_SIMUN_TIMRUR: "סימון תנועה",
-    predict_risk: "חשב סיכון",
+    predict_risk: "סווג חומרה",
     analyzing: "מחשב...",
-    risk_assessment: "הערכת סיכון",
+    risk_assessment: "סיווג חומרת תאונה",
     risk_level: "חיזוי",
     ready: "מוכן",
-    low_risk: "סיכון נמוך",
-    medium_risk_label: "סיכון בינוני",
-    high_risk: "סיכון גבוה",
+    low_risk: "הסתברות נמוכה יותר",
+    medium_risk_label: "הסתברות בינונית",
+    high_risk: "הסתברות גבוהה יותר",
     light_accident: "תאונה קלה",
     dangerous_accident: "תאונה מסוכנת",
-    recommendation: "המלצה",
+    recommendation: "פירוש התוצאה",
     risk_factors: "פרטי החיזוי",
-    select_conditions_advice: "בחר את תנאי הנהיגה ולחץ על \"חשב סיכון\" כדי לקבל המלצות בטיחות מותאמות אישית.",
+    select_conditions_advice: "בחר תרחיש תאונה ולחץ על \"סווג חומרה\". התוצאה מעריכה חומרה, ולא את הסיכוי שתתרחש תאונה.",
     calculating: "מחשב הערכה...",
-    why_this_risk: "למה הסיכון הזה?",
-    low_risk_label: "סיכון נמוך",
-    high_risk_label: "סיכון גבוה",
+    why_this_risk: "פלט המודל",
+    low_risk_label: "הסתברות נמוכה יותר",
+    high_risk_label: "הסתברות גבוהה יותר",
     low: "נמוך",
     medium: "בינוני",
     high: "גבוה",
     error: "שגיאה",
-    low_risk_advice: "הסיכון נמוך. נהג כרגיל והישאר ערני.",
-    medium_risk_advice: "הסיכון בינוני. האט ושמור על ריכוז.",
-    high_risk_advice: "הסיכון גבוה. נהג בזהירות והימנע מהסחות דעת.",
-    unable_calculate: "לא ניתן לחשב סיכון",
+    low_risk_advice: "הסתברות מודל נמוכה יותר לתאונה מסוכנת, בהינתן תרחיש התאונה שנבחר. זו אינה הסתברות להתרחשות תאונה.",
+    medium_risk_advice: "הסתברות מודל בינונית לתאונה מסוכנת, בהינתן תרחיש התאונה שנבחר. זו אינה הסתברות להתרחשות תאונה.",
+    high_risk_advice: "הסתברות מודל גבוהה יותר לתאונה מסוכנת, בהינתן תרחיש התאונה שנבחר. זו אינה הסתברות להתרחשות תאונה.",
+    unable_calculate: "לא ניתן לסווג חומרה",
     check_connection: "אנא בדוק את החיבור ונסה שוב.",
-    footer_note: "הדגמה חינוכית – אינה תחליף להנחיות בטיחות בדרכים רשמיות.",
+    footer_note: "הדגמה לימודית לסיווג חומרה. תאונה מסוכנת היא קטלנית או קשה; הפלט אינו הסיכוי שתתרחש תאונה.",
     network_error: "חיבור הרשת נכשל. בדוק אם שרת ה-backend פועל.",
     server_error: "אירעה שגיאת שרת. נסה שוב מאוחר יותר.",
     invalid_response: "התקבלה תגובה לא תקינה מהשרת.",
@@ -127,6 +127,7 @@ const i18n = {
   }
 };
 
+/** Build the 24 hour choices with shared display labels. */
 function buildHourOptions() {
   const rows = [];
   for (let hour = 0; hour <= 23; hour += 1) {
@@ -136,6 +137,7 @@ function buildHourOptions() {
   return rows;
 }
 
+/** Return the four quarter-hour choices accepted by the model. */
 function buildMinuteOptions() {
   return [
     { value: "00", en: "00", he: "00" },
@@ -145,10 +147,12 @@ function buildMinuteOptions() {
   ];
 }
 
+/** Attach English and Hebrew labels to stable option keys. */
 function buildLabeledOptions(entries) {
   return entries.map(([value, en, he]) => ({ value, en, he }));
 }
 
+/** Return month keys with bilingual labels. */
 function buildMonthOptions() {
   return buildLabeledOptions([
     ["january", "January", "ינואר"],
@@ -345,14 +349,15 @@ const selectOptions = {
   ])
 };
 
-let lastBreakdownData = [];
 let lastProbability = null;
 let lastPrediction = null;
 
+/** Read the active language from the document. */
 function getCurrentLanguage() {
   return document.documentElement.lang === "he" ? "he" : "en";
 }
 
+/** Use the same origin on port 8000 or the local backend otherwise. */
 function getApiEndpoint() {
   const currentPort = window.location.port;
   const currentHost = window.location.hostname;
@@ -362,6 +367,7 @@ function getApiEndpoint() {
   return `http://${currentHost}:8000/predict`;
 }
 
+/** Update translated text without changing option values. */
 function applyI18nText(lang) {
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     const key = element.getAttribute("data-i18n");
@@ -371,6 +377,7 @@ function applyI18nText(lang) {
   });
 }
 
+/** Render translated choices while preserving the selected value. */
 function renderOptionsForSelect(selectId, lang) {
   const select = document.getElementById(selectId);
   const options = selectOptions[selectId];
@@ -404,11 +411,13 @@ function renderOptionsForSelect(selectId, lang) {
   }
 }
 
+/** Refresh every select control for the chosen language. */
 function renderAllSelectOptions(lang) {
   Object.keys(selectOptions).forEach((selectId) => renderOptionsForSelect(selectId, lang));
   updateSelectVisualState();
 }
 
+/** Mark controls that have a selected value. */
 function updateSelectVisualState() {
   document.querySelectorAll(".input-group select").forEach((select) => {
     const hasValue = String(select.value || "").trim() !== "";
@@ -416,6 +425,7 @@ function updateSelectVisualState() {
   });
 }
 
+/** Choose a display band from the dangerous-class probability. */
 function classifyRisk(probability) {
   const lang = getCurrentLanguage();
   if (probability < 0.33) {
@@ -427,6 +437,7 @@ function classifyRisk(probability) {
   return { label: i18n[lang].high_risk_label, badge: i18n[lang].high, cssClass: "risk-high", color: "#d32f2f" };
 }
 
+/** Explain the current probability band without estimating accident occurrence. */
 function setAdvice(probability) {
   const lang = getCurrentLanguage();
   if (probability < 0.33) {
@@ -438,49 +449,7 @@ function setAdvice(probability) {
   return i18n[lang].high_risk_advice;
 }
 
-function renderBreakdown(breakdown) {
-  const explainDiv = document.getElementById("explain");
-  if (!explainDiv) {
-    return;
-  }
-
-  const lang = getCurrentLanguage();
-  explainDiv.innerHTML = `<div class="risk-factors-title">${i18n[lang].why_this_risk}</div>`;
-
-  if (!Array.isArray(breakdown) || breakdown.length === 0) {
-    return;
-  }
-
-  const list = document.createElement("div");
-  list.className = "risk-factors-list";
-
-  breakdown.forEach((item) => {
-    if (!item || typeof item !== "object") {
-      return;
-    }
-
-    const factor = String(item.factor ?? "");
-    const value = String(item.value ?? "");
-    const delta = Number(item.delta ?? 0);
-    const impact = Math.round(delta * 100);
-
-    const factorLabel = i18n[lang][`factor_${factor}`] || factor;
-    const signedImpact = impact >= 0 ? `+${impact}%` : `${impact}%`;
-
-    const factorItem = document.createElement("div");
-    factorItem.className = "risk-factor-item";
-    factorItem.innerHTML = `
-      <div class="factor-label">${factorLabel}</div>
-      <div class="factor-value">${value}</div>
-      <div class="factor-impact ${impact >= 0 ? "positive" : "negative"}">${signedImpact}</div>
-    `;
-
-    list.appendChild(factorItem);
-  });
-
-  explainDiv.appendChild(list);
-}
-
+/** Display the predicted class and both model probabilities. */
 function renderPredictionSummary(prediction, lightProbability, dangerousProbability) {
   const explainDiv = document.getElementById("explain");
   if (!explainDiv) {
@@ -513,6 +482,7 @@ function renderPredictionSummary(prediction, lightProbability, dangerousProbabil
   `;
 }
 
+/** Apply the probability band colors to the result panel. */
 function applyRiskTheme(probability) {
   const resultSection = document.querySelector(".result-section");
   const explainDiv = document.getElementById("explain");
@@ -539,6 +509,7 @@ function applyRiskTheme(probability) {
   explainDiv.classList.add("risk-factors--high");
 }
 
+/** Switch direction and labels while preserving inputs and the last result. */
 function setLanguage(lang) {
   if (!i18n[lang]) {
     return;
@@ -556,10 +527,6 @@ function setLanguage(lang) {
   const advice = document.getElementById("advice");
   if (advice) {
     advice.textContent = lastProbability === null ? i18n[lang].select_conditions_advice : setAdvice(lastProbability);
-  }
-
-  if (lastBreakdownData.length > 0) {
-    renderBreakdown(lastBreakdownData);
   }
 
   if (lastProbability !== null) {
@@ -589,20 +556,13 @@ function setLanguage(lang) {
   localStorage.setItem("ui_language", lang);
 }
 
+/** Restore the saved language, defaulting to English. */
 function initializeLanguage() {
   const saved = localStorage.getItem("ui_language");
   setLanguage(saved === "he" ? "he" : "en");
 }
 
-function getNumericValue(id, fallback) {
-  const node = document.getElementById(id);
-  if (!node) {
-    return fallback;
-  }
-  const value = Number(node.value);
-  return Number.isFinite(value) ? value : fallback;
-}
-
+/** Read a selected option key or return the supplied default. */
 function getStringValue(id, fallback) {
   const node = document.getElementById(id);
   if (!node) {
@@ -612,6 +572,7 @@ function getStringValue(id, fallback) {
   return value === "" ? fallback : value;
 }
 
+/** Combine hour and minute selections into HH:MM. */
 function getTimeValue(fallback) {
   const hour = getStringValue("SHAA_HOUR", "");
   const minute = getStringValue("SHAA_MINUTE", "");
@@ -621,6 +582,7 @@ function getTimeValue(fallback) {
   return `${hour.padStart(2, "0")}:${minute.padStart(2, "0")}`;
 }
 
+/** Find a translated field label for validation messages. */
 function getFieldLabel(id, lang) {
   if (id === "SHAA_HOUR") {
     return lang === "he" ? "שעה" : "Hour";
@@ -635,6 +597,7 @@ function getFieldLabel(id, lang) {
   return i18n[lang][`label_${id}`] || id;
 }
 
+/** Report empty controls before submitting the request. */
 function validateRequiredFields() {
   const lang = getCurrentLanguage();
   const missingFields = [];
@@ -656,6 +619,7 @@ function validateRequiredFields() {
   };
 }
 
+/** Display the missing-field explanation in the alert and result panel. */
 function showValidationError(message) {
   const lang = getCurrentLanguage();
   const errorText = document.getElementById("errorText");
@@ -677,6 +641,7 @@ function showValidationError(message) {
   }
 }
 
+/** Validate the form, request a prediction, and display the result or error. */
 async function predict() {
   const lang = getCurrentLanguage();
   const btn = document.getElementById("btn");
@@ -760,11 +725,10 @@ async function predict() {
 
     lastProbability = dangerousProbability;
     lastPrediction = prediction;
-    lastBreakdownData = [];
 
     riskText.textContent = prediction === 1 ? i18n[lang].dangerous_accident : i18n[lang].light_accident;
     riskText.style.color = cls.color;
-    // Badge shows the risk level (Low/Medium/High) so it agrees with the gauge, advice and colour.
+    // The badge and gauge use the same display bands for dangerous-class probability.
     riskBadge.textContent = cls.badge;
     riskBadge.className = `risk-badge ${cls.cssClass}`;
     advice.textContent = setAdvice(dangerousProbability);
@@ -783,6 +747,8 @@ async function predict() {
       userMessage = i18n[lang].invalid_response;
     }
 
+    errorText.querySelector("h3").textContent = i18n[lang].unable_calculate;
+    errorText.querySelector("p").textContent = userMessage;
     errorText.style.display = "block";
     advice.textContent = userMessage;
     riskBadge.textContent = i18n[lang].error;
@@ -794,6 +760,7 @@ async function predict() {
   }
 }
 
+/** Connect language, prediction, and select-change handlers. */
 function bindEvents() {
   document.querySelectorAll(".lang-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -815,6 +782,7 @@ function bindEvents() {
   });
 }
 
+/** Initialize controls, language, events, and empty result values. */
 function initializeApp() {
   initializeLanguage();
   renderAllSelectOptions(getCurrentLanguage());

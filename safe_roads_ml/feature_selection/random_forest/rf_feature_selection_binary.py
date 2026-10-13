@@ -31,6 +31,7 @@ df = df.replace(r"^\s*$", np.nan, regex=True)
 # Combine HAD_MASLUL and RAV_MASLUL into one feature
 # =====================
 def combine_road_structure(row: pd.Series) -> str:
+    """Prefer nonzero HAD_MASLUL codes, then RAV_MASLUL, otherwise return OTHER."""
     had = row["HAD_MASLUL"]
     rav = row["RAV_MASLUL"]
 

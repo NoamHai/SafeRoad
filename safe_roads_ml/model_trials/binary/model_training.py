@@ -25,7 +25,6 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-from datetime import datetime
 from sklearn.model_selection import train_test_split, StratifiedKFold, cross_validate
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
@@ -44,7 +43,7 @@ from sklearn.metrics import (
 )
 from sklearn.utils.class_weight import compute_sample_weight
 
-from typing import Any, Callable
+from typing import Callable
 
 print("Run started at:", datetime.now().strftime("%H:%M:%S"))
 
@@ -94,6 +93,7 @@ os.makedirs("runs", exist_ok=True)
 # --- helper: combine HAD_MASLUL + RAV_MASLUL ---
 # ------------------------------------------------------------
 def combine_road_structure(row: pd.Series) -> str:
+    """Prefer nonzero HAD_MASLUL codes, then RAV_MASLUL, otherwise return OTHER."""
     had = row["HAD_MASLUL"]
     rav = row["RAV_MASLUL"]
 
@@ -118,6 +118,7 @@ def combine_road_structure(row: pd.Series) -> str:
 # --- helper: load and prepare base dataframe ---
 # ------------------------------------------------------------
 def load_and_prepare_base_df() -> pd.DataFrame:
+    """Clean the experiment input and derive the binary target and road categories."""
     df = pd.read_excel(INPUT_FILE)
 
     # convert cells with only spaces to NaN
@@ -180,6 +181,7 @@ def fit_with_optional_sample_weight(
     X_fit: pd.DataFrame,
     y_fit: pd.Series,
 ) -> bool:
+    """Fit with balanced sample weights; return False if fitting required no weights."""
     sw = compute_sample_weight(class_weight="balanced", y=y_fit)
 
     try:
@@ -196,6 +198,7 @@ def fit_with_optional_sample_weight(
 def build_models(cat_cols: list[str]) -> dict[str, Pipeline]:
     # Logistic Regression and HistGB:
     # treat all selected features as categorical and one-hot encode them
+    """Build three classifier pipelines using the selected categorical columns."""
     cat_transformer_onehot = Pipeline(steps=[
         ("imputer", SimpleImputer(strategy="most_frequent")),
         ("onehot", OneHotEncoder(
@@ -273,7 +276,8 @@ def eval_on_val(
     X_val: pd.DataFrame,
     y_val: pd.Series,
     print_fn: Callable[..., None],
-) -> dict:
+) -> dict[str, str | bool | float]:
+    """Fit on training data and return validation metrics for the named model."""
     used_sw = fit_with_optional_sample_weight(model, X_train, y_train)
     pred = model.predict(X_val)
 
@@ -322,7 +326,8 @@ def cv_on_train(
     X_train: pd.DataFrame,
     y_train: pd.Series,
     print_fn: Callable[..., None],
-) -> dict:
+) -> dict[str, float]:
+    """Return mean cross-validation metrics computed only on training data."""
     cv = StratifiedKFold(n_splits=N_SPLITS_CV, shuffle=True, random_state=RANDOM_STATE)
 
     scoring = {
@@ -365,7 +370,8 @@ def eval_on_test(
     X_test: pd.DataFrame,
     y_test: pd.Series,
     print_fn: Callable[..., None],
-) -> dict:
+) -> dict[str, float]:
+    """Return held-out test metrics for the fitted binary classifier."""
     pred = model.predict(X_test)
 
     acc = accuracy_score(y_test, pred)
@@ -405,6 +411,7 @@ def eval_on_test(
 # --- main experiment function ---
 # ------------------------------------------------------------
 def run_feature_set(set_name: str, selected_features: list[str]) -> None:
+    """Compare models for one feature set and save timestamped logs and metrics."""
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     feature_count = len(selected_features)
 
@@ -414,7 +421,8 @@ def run_feature_set(set_name: str, selected_features: list[str]) -> None:
 
     log_f = open(log_path, "w", encoding="utf-8")
 
-    def print_fn(*args: Any, **kwargs: Any) -> None:
+    def print_fn(*args: object, **kwargs: object) -> None:
+        """Write experiment output to the console and log, then flush the log."""
         builtins.print(*args, **kwargs)
         builtins.print(*args, file=log_f, **kwargs)
         log_f.flush()

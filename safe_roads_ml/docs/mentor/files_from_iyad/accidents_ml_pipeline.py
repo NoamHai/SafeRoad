@@ -1,5 +1,8 @@
 """
-Israel Road Accidents — Full ML Pipeline
+Historical mentor Random Forest pipeline
+
+This retained example fits imputation and label encoding before the split.
+It is not the final model training or export workflow.
 =========================================
 Dataset : accidents_raw_master.csv
 Target  : HUMRAT_TEUNA  (1 = Fatal, 2 = Severe, 3 = Light)

@@ -1,12 +1,37 @@
-"""Map UI selections to model-ready feature codes and preprocess the accidents dataset."""
+"""Map application selections to model codes and retain legacy analysis helpers."""
 
 from pathlib import Path
-from typing import Dict, Optional, Any, List
+from typing import Dict, Optional, List, TypedDict
 import json
 import re
 
 import pandas as pd
 import numpy as np
+
+ModelCode = int | str | float | np.integer
+
+
+class FeatureEntry(TypedDict):
+    """One authoritative feature mapping and its English description."""
+
+    mapping: dict[str, int | str]
+    description: str
+
+
+class MappingDatabase(TypedDict):
+    """The loaded mapping resource in the form used by conversion helpers."""
+
+    feature_order: list[str]
+    features: dict[str, FeatureEntry]
+
+
+class ValidationReport(TypedDict):
+    """Warnings and errors reported by the standalone validation helper."""
+
+    valid: bool
+    errors: list[str]
+    warnings: list[str]
+    missing_features: list[str]
 
 
 # Feature mappings: frontend option keys → raw model values
@@ -32,78 +57,42 @@ DEFAULT_FEATURE_ORDER = [
 ]
 
 
-def _default_feature_mapping_db() -> Dict[str, Any]:
-    """Built-in fallback feature mappings used if the JSON file is unavailable."""
-    return {
-        "feature_order": DEFAULT_FEATURE_ORDER,
-        "features": {
-            "SHAA": {"mapping": {f"{h:02d}:00": h for h in range(24)} | {"לא ידוע": 0}, "description": "Hour of day"},
-            "HODESH_TEUNA": {"mapping": {f"{m}": m for m in range(1, 13)} | {"לא ידוע": 0}, "description": "Month of accident"},
-            "YOM_BASHAVUA": {
-                "mapping": {
-                    "ראשון": 1,
-                    "שני": 2,
-                    "שלישי": 3,
-                    "רביעי": 4,
-                    "חמישי": 5,
-                    "שישי": 6,
-                    "שבת": 7,
-                    "לא ידוע": 0,
-                },
-                "description": "Day of week",
+def _load_feature_mapping_db() -> MappingDatabase:
+    """Load the required authoritative mappings without substituting older codes."""
+    try:
+        with FEATURE_MAPPING_PATH.open("r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+        if not isinstance(payload, dict) or set(payload) != set(DEFAULT_FEATURE_ORDER) - {"SHAA"}:
+            raise ValueError("Expected mappings for the 15 categorical fields; SHAA is converted separately")
+        if any(
+            not isinstance(mapping, dict) or not mapping
+            or any(not isinstance(value, (int, str)) for value in mapping.values())
+            for mapping in payload.values()
+        ):
+            raise ValueError("Expected nonempty feature mappings with integer or string codes")
+        return {
+            "feature_order": list(DEFAULT_FEATURE_ORDER),
+            "features": {
+                name: {"mapping": mapping, "description": name.replace("_", " ").title()}
+                for name, mapping in payload.items()
             },
-            "SUG_TEUNA": {"mapping": {"לא ידוע": 0, "חזיתי": 1, "אחורי": 2, "צדדי": 3, "הולך רגל": 4}, "description": "Accident type"},
-            "ROAD_STRUCTURE": {"mapping": {"לא ידוע": 0, "חד-כיווני": 1, "דו-כיווני": 2, "רב-נתיבים דו-כיווני": 3, "רב-נתיבים חד-כיווני": 4}, "description": "Road structure"},
-            "ROHAV": {"mapping": {"לא ידוע": 0, "צר (עד 6.5 מ')": 1, "בינוני (6.5-8 מ')": 2, "רחב (מעל 8 מ')": 3}, "description": "Road width"},
-            "NAFA": {"mapping": {"לא ידוע": 0, "מרכז": 1, "צפון": 2, "דרום": 3, "ירושלים": 4, "חיפה": 5}, "description": "Administrative region / district"},
-            "ZURAT_ISHUV": {"mapping": {"לא ידוע": 0, "עירוני": 1, "כפרי": 2, "כביש ראשי": 3}, "description": "Settlement form"},
-            "MEHIRUT_MUTERET": {"mapping": {"לא ידוע": 0, "עד 50 קמ״ש": 1, "עד 60 קמ״ש": 2, "עד 70 קמ״ש": 3, "עד 80 קמ״ש": 4, "עד 90 קמ״ש": 5, "עד 100 קמ״ש": 6, "עד 110 קמ״ש": 7, "עד 120 קמ״ש": 8}, "description": "Speed limit"},
-            "TEURA": {"mapping": {"לא ידוע": 0, "אור יום": 1, "לילה עם תאורה": 2, "לילה ללא תאורה": 3}, "description": "Lighting"},
-            "SUG_DEREH": {"mapping": {"לא ידוע": 0, "עירוני בצומת": 1, "עירוני לא בצומת": 2, "לא עירוני בצומת": 3, "לא עירוני לא בצומת": 4}, "description": "Road type"},
-            "SIMUN_TIMRUR": {"mapping": {"לא ידוע": 0, "בעל רמזור": 1, "בעל תמרור": 2, "ללא סימונים": 3}, "description": "Traffic marking"},
-            "TKINUT": {"mapping": {"לא ידוע": 0, "תקין": 1, "לא תקין": 2}, "description": "Road condition / road validity"},
-            "PNE_KVISH": {"mapping": {"לא ידוע": 0, "יבש": 1, "רטוב ממים": 2, "מרוח בחומר דלק": 3, "מכוסה בבוץ": 4}, "description": "Road surface"},
-            "MEZEG_AVIR": {"mapping": {"לא ידוע": 0, "בהיר": 1, "מעונן": 2, "גשום": 3, "ערפילי": 4}, "description": "Weather"},
-            "YOM_LAYLA": {"mapping": {"לא ידוע": 0, "יום": 1, "לילה": 2}, "description": "Day or night"},
-        },
-    }
+        }
+    except (OSError, ValueError) as exc:
+        raise RuntimeError("Authoritative feature mappings are unavailable or invalid") from exc
 
 
-def _load_feature_mapping_db() -> Dict[str, Any]:
-    """Load feature mappings from the JSON file, falling back to the built-in defaults."""
-    if FEATURE_MAPPING_PATH.exists():
-        try:
-            with FEATURE_MAPPING_PATH.open("r", encoding="utf-8") as handle:
-                payload = json.load(handle)
-            if isinstance(payload, dict):
-                if "features" in payload:
-                    return payload
-
-                flat_features = {
-                    feature_name: {
-                        "mapping": feature_mapping,
-                        "description": feature_name.replace("_", " ").title(),
-                    }
-                    for feature_name, feature_mapping in payload.items()
-                    if isinstance(feature_mapping, dict)
-                }
-
-                if flat_features:
-                    return {
-                        "feature_order": list(DEFAULT_FEATURE_ORDER),
-                        "features": flat_features,
-                    }
-        except Exception:
-            pass
-    return _default_feature_mapping_db()
+# Keep static serving available; prediction reports resource errors through the route.
+try:
+    _FEATURE_MAPPING_DB = _load_feature_mapping_db()
+except RuntimeError:
+    _FEATURE_MAPPING_DB = None
+FEATURE_ORDER = list(DEFAULT_FEATURE_ORDER)
 
 
-_FEATURE_MAPPING_DB = _load_feature_mapping_db()
-FEATURE_ORDER = list(_FEATURE_MAPPING_DB.get("feature_order", DEFAULT_FEATURE_ORDER))
-
-
-def _mapping_for(feature_name: str) -> Dict[str, int]:
-    """Return one feature's value mapping with string keys."""
+def _mapping_for(feature_name: str) -> Dict[str, int | str]:
+    """Return authoritative codes, or an empty mapping when the resource failed."""
+    if _FEATURE_MAPPING_DB is None:
+        return {}
     feature_entry = _FEATURE_MAPPING_DB["features"][feature_name]
     return {str(key): value for key, value in feature_entry["mapping"].items()}
 
@@ -135,7 +124,7 @@ DAY_NIGHT_MAPPING = _mapping_for("YOM_LAYLA")
 ROAD_STRUCTURE_MAPPING = _mapping_for("ROAD_STRUCTURE")
 
 
-# Reverse mappings: integer codes → Hebrew UI strings (for visualization)
+# Reverse mappings: model codes to frontend option keys (for analysis tools).
 REVERSE_MAPPINGS = {
     "MEHIRUT_MUTERET": {v: k for k, v in SPEED_LIMIT_MAPPING.items()},
     "SUG_DEREH": {v: k for k, v in ROAD_TYPE_MAPPING.items()},
@@ -163,21 +152,18 @@ for feature_name in FEATURE_ORDER:
         "type": "integer" if feature_name in {"SHAA", "HODESH_TEUNA", "YOM_BASHAVUA"} else "categorical",
         "mapping": HOUR_MAPPING if feature_name == "SHAA" else _mapping_for(feature_name),
         "default": 0,
-        "description": _FEATURE_MAPPING_DB["features"].get(
-            feature_name,
-            {"description": feature_name.replace("_", " ").title()},
-        )["description"],
+        "description": feature_name.replace("_", " ").title(),
     }
 
 
 # Core conversion functions
 
-def _normalize_key(value: Any) -> str:
+def _normalize_key(value: object) -> str:
     """Normalize a key to a trimmed lowercase string for matching."""
     return str(value).strip().lower()
 
 
-def _coerce_shaa(value: Any) -> int:
+def _coerce_shaa(value: object) -> int:
     """Coerce a SHAA value (int 1..96 or 'HH:MM') to its 1..96 time code."""
     if value is None or (isinstance(value, float) and pd.isna(value)):
         raise ValueError("Field 'SHAA' is required")
@@ -216,11 +202,11 @@ def _coerce_shaa(value: Any) -> int:
 
 
 def map_value_to_integer(
-    value: Any,
-    mapping_dict: Dict[Any, Any],
+    value: object,
+    mapping_dict: Dict[str, int | str],
     feature_name: str = "Unknown",
-    default: Any = 0
-) -> Any:
+    default: int | str = 0
+) -> ModelCode:
     """Convert a frontend selection key to the raw value the model expects."""
     if value is None or (isinstance(value, float) and pd.isna(value)):
         return default
@@ -254,7 +240,7 @@ def engineer_road_structure(
     had_maslul_col: str = "HAD_MASLUL",
     rav_maslul_col: str = "RAV_MASLUL"
 ) -> pd.Series:
-    """Derive ROAD_STRUCTURE from the HAD_MASLUL/RAV_MASLUL lane columns."""
+    """Return legacy numeric road codes; the saved model uses string categories instead."""
     road_structure = pd.Series(2, index=df.index, dtype=int)  # Default: two-way
     
     if had_maslul_col in df.columns:
@@ -278,14 +264,16 @@ def engineer_road_structure(
 
 
 def prepare_model_input(
-    ui_input: Dict[str, Any],
+    ui_input: Dict[str, object],
     feature_order: Optional[List[str]] = None
-) -> Dict[str, Any]:
-    """Convert a UI input dict to integer-coded model inputs, in feature order."""
+) -> Dict[str, ModelCode]:
+    """Map UI keys to model codes, preserving categorical strings and column order."""
+    if _FEATURE_MAPPING_DB is None:
+        raise RuntimeError("Authoritative feature mappings are unavailable or invalid")
     if feature_order is None:
         feature_order = list(FEATURE_ORDER)
 
-    model_input: Dict[str, Any] = {}
+    model_input: Dict[str, ModelCode] = {}
 
     for feature in feature_order:
         if feature not in FEATURE_CONFIG:
@@ -307,7 +295,7 @@ def prepare_model_input(
 
 
 def prepare_model_frame(
-    ui_input: Dict[str, Any],
+    ui_input: Dict[str, object],
     feature_order: Optional[List[str]] = None
 ) -> pd.DataFrame:
     """Convert UI input into a single-row DataFrame for the saved pipeline."""
@@ -317,16 +305,16 @@ def prepare_model_frame(
 
 
 def prepare_model_array(
-    ui_input: Dict[str, Any],
+    ui_input: Dict[str, object],
     feature_order: Optional[List[str]] = None
 ) -> np.ndarray:
     """Convert UI input to a numpy array for the model."""
     return prepare_model_frame(ui_input, feature_order).to_numpy(dtype=object)
 
 
-def validate_ui_input(ui_input: Dict[str, Any]) -> Dict[str, Any]:
+def validate_ui_input(ui_input: Dict[str, object]) -> ValidationReport:
     """Validate UI input and return a report of errors, warnings, and missing features."""
-    report = {
+    report: ValidationReport = {
         "valid": True,
         "errors": [],
         "warnings": [],
@@ -379,7 +367,7 @@ def preprocess_dataset(
     selected_features: Optional[List[str]] = None,
     target_column: str = "NIKVIYUT_TEUNA"
 ) -> pd.DataFrame:
-    """Preprocess the raw accidents dataset: select features, engineer ROAD_STRUCTURE, fill and clean."""
+    """Prepare legacy numeric data; this helper is not the final model training pipeline."""
     if selected_features is None:
         selected_features = list(FEATURE_ORDER)
     

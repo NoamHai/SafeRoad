@@ -27,7 +27,6 @@ from sklearn.metrics import (
 )
 from sklearn.utils.class_weight import compute_sample_weight
 
-from typing import Any
 
 # ------------------------------------------------------------
 # --- logging setup: writes experiment prints to the log file ---
@@ -37,8 +36,9 @@ stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 LOG_PATH = f"runs/run_{stamp}.txt"
 _log_f = open(LOG_PATH, "w", encoding="utf-8")
 
-def print(*args: Any, **kwargs: Any) -> None:
+def print(*args: object, **kwargs: object) -> None:
     # write to log file
+    """Write experiment output to the log and flush it immediately."""
     builtins.print(*args, file=_log_f, **kwargs)
     _log_f.flush()
 
@@ -199,7 +199,8 @@ def fit_with_optional_sample_weight(
         pipeline_model.fit(X_fit, y_fit)
         return False
 
-def eval_on_val(model: Pipeline, name: str) -> dict:
+def eval_on_val(model: Pipeline, name: str) -> dict[str, str | float]:
+    """Fit on training data and return validation metrics for the named model."""
     used_sw = fit_with_optional_sample_weight(model, X_train, y_train)
     pred = model.predict(X_val)
 
@@ -223,7 +224,8 @@ def eval_on_val(model: Pipeline, name: str) -> dict:
         "val_f1_weighted": float(f1_weighted),
     }
 
-def cv_on_train(model: Pipeline, name: str, cv_obj: StratifiedKFold) -> dict:
+def cv_on_train(model: Pipeline, name: str, cv_obj: StratifiedKFold) -> dict[str, float]:
+    """Return mean cross-validation metrics computed only on training data."""
     scoring = {
         "bal_acc": "balanced_accuracy",
         "f1_macro": "f1_macro",
